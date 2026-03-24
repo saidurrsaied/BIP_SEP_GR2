@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: parking-system
+  datasource:
+    url: jdbc:postgresql://localhost:5432/parking_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+# Security Configuration
+security:
+  jwt:
+    secret: ${JWT_SECRET:placeholder-secret-key-at-least-32-characters-long}
+    expiration-ms: 3600000
+
+# External Service Base URLs
+external-services:
+  mapping: ${MAPPING_SERVICE_URL:http://mapping-service/api}
+  payment: ${PAYMENT_SERVICE_URL:http://payment-service/api}
+  notification: ${NOTIFICATION_SERVICE_URL:http://notification-service/api}
