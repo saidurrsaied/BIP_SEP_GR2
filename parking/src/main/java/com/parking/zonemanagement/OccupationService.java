@@ -1,5 +1,6 @@
 package com.parking.zonemanagement;
 
+import com.parking.exception.BusinessException;
 import com.parking.zonemanagement.internal.OccupationRecord;
 import com.parking.zonemanagement.internal.OccupationRepository;
 import com.parking.zonemanagement.internal.SpaceRepository;
@@ -47,7 +48,7 @@ public class OccupationService {
     @Transactional
     public OccupationRecord markSpaceVacated(Long spaceId) {
         OccupationRecord record = occupationRepository.findBySpaceIdAndEndTimeIsNull(spaceId)
-                .orElseThrow(() -> new RuntimeException("No active occupation found for space: " + spaceId));
+                .orElseThrow(() -> new BusinessException("Space " + spaceId + " is not currently occupied"));
 
         record.setEndTime(Instant.now());
         occupationRepository.save(record);

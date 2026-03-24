@@ -1,5 +1,8 @@
 package com.parking.usermanagement;
 
+import com.parking.exception.BusinessException;
+import com.parking.exception.ConflictException;
+import com.parking.exception.ResourceNotFoundException;
 import com.parking.usermanagement.internal.PasswordHasher;
 import com.parking.usermanagement.internal.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,10 @@ public class UserService {
 
     @Transactional
     public User registerUser(String email, String password, UserRole role) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new ConflictException("An account with email '" + email + "' already exists");
+        }
+
         User user = User.builder()
                 .email(email)
                 .hashedPassword(passwordHasher.hash(password))
@@ -43,12 +50,12 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .filter(user -> passwordHasher.matches(password, user.getHashedPassword()))
                 .map(user -> "dummy-jwt-token-for-" + user.getUserId())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new BusinessException("Invalid email or password"));
     }
 
     public User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
     }
 
     public UserRole getUserRole(Long userId) {

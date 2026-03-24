@@ -1,5 +1,7 @@
 package com.parking.reservation;
 
+import com.parking.exception.BusinessException;
+import com.parking.exception.ResourceNotFoundException;
 import com.parking.reservation.internal.ReservationRepository;
 import com.parking.reservation.internal.ReservationValidator;
 import com.parking.zonemanagement.ParkingSpace;
@@ -27,9 +29,9 @@ public class ReservationService {
     public Reservation placeReservation(Long userId, Long spaceId, Instant from, Instant until) {
         reservationValidator.validate(userId, spaceId, from, until);
 
-        ParkingSpace space = zoneService.getSpaceById(spaceId);
+        ParkingSpace space = zoneService.getSpaceByIdForUpdate(spaceId);
         if (space.getStatus() != SpaceStatus.FREE) {
-            throw new RuntimeException("Space is not available for reservation");
+            throw new BusinessException("Space " + spaceId + " is not available for reservation (current status: " + space.getStatus() + ")");
         }
 
         zoneService.updateSpaceStatus(spaceId, SpaceStatus.RESERVED);
@@ -62,7 +64,7 @@ public class ReservationService {
     @Transactional
     public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + reservationId + " not found"));
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
@@ -80,7 +82,7 @@ public class ReservationService {
     @Transactional
     public void completeReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + reservationId + " not found"));
 
         reservation.setStatus(ReservationStatus.COMPLETED);
         reservationRepository.save(reservation);
@@ -99,7 +101,7 @@ public class ReservationService {
 
     public Reservation getReservation(Long reservationId) {
         return reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + reservationId + " not found"));
     }
 
     public List<Reservation> getReservationsForUser(Long userId) {

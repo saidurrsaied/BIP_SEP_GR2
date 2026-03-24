@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ public class BillingEventListener {
     private final ApplicationEventPublisher eventPublisher;
 
     @ApplicationModuleListener
-    @Transactional
     public void onReservationCompleted(ReservationCompletedEvent event) {
         PricingPolicy policy = zoneService.getPricingPolicy(event.zoneId());
         long cost = priceCalculator.calculateParkingCost(event.durationMinutes(), policy);
@@ -69,7 +67,6 @@ public class BillingEventListener {
     }
 
     @ApplicationModuleListener
-    @Transactional
     public void onSpaceVacated(SpaceVacatedEvent event) {
         if (event.hasChargingPoint() == HasChargingPoint.TRUE) {
             // Logic to append EV_CHARGING cost to existing invoice

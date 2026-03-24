@@ -1,5 +1,6 @@
 package com.parking.zonemanagement;
 
+import com.parking.exception.ResourceNotFoundException;
 import com.parking.zonemanagement.PricingPolicy;
 import com.parking.zonemanagement.internal.SpaceRepository;
 import com.parking.zonemanagement.internal.ZoneRepository;
@@ -42,7 +43,7 @@ public class ZoneService {
     @Transactional
     public ParkingSpace addSpaceToZone(Long zoneId, HasChargingPoint hasChargingPoint, String level, String spaceNumber) {
         ParkingZone zone = zoneRepository.findById(zoneId)
-                .orElseThrow(() -> new RuntimeException("Zone not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Zone with id " + zoneId + " not found"));
 
         ParkingSpace space = ParkingSpace.builder()
                 .zoneId(zoneId)
@@ -61,7 +62,7 @@ public class ZoneService {
     @Transactional
     public void updateSpaceStatus(Long spaceId, SpaceStatus newStatus) {
         ParkingSpace space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new RuntimeException("Space not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Space with id " + spaceId + " not found"));
 
         SpaceStatus oldStatus = space.getStatus();
         space.setStatus(newStatus);
@@ -84,12 +85,18 @@ public class ZoneService {
 
     public ParkingSpace getSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new RuntimeException("Space not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Space with id " + spaceId + " not found"));
+    }
+
+    @Transactional
+    public ParkingSpace getSpaceByIdForUpdate(Long spaceId) {
+        return spaceRepository.findByIdForUpdate(spaceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Space with id " + spaceId + " not found"));
     }
 
     public PricingPolicy getPricingPolicy(Long zoneId) {
         return zoneRepository.findById(zoneId)
                 .map(ParkingZone::getPricingPolicy)
-                .orElseThrow(() -> new RuntimeException("Zone not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Zone with id " + zoneId + " not found"));
     }
 }
