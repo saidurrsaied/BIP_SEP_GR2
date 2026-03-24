@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +33,6 @@ public class BillingEventListener {
         long cost = priceCalculator.calculateParkingCost(event.durationMinutes(), policy);
 
         BillingItem item = BillingItem.builder()
-                .itemId(UUID.randomUUID().toString())
                 .type(BillingItemType.PARKING)
                 .description("Parking fee for " + event.durationMinutes() + " minutes")
                 .amountCents(cost)
@@ -42,7 +40,6 @@ public class BillingEventListener {
                 .build();
 
         Invoice invoice = Invoice.builder()
-                .invoiceId(UUID.randomUUID().toString())
                 .userId(event.userId())
                 .reservationId(event.reservationId())
                 .items(new ArrayList<>(List.of(item)))
@@ -85,7 +82,6 @@ public class BillingEventListener {
             long chargingCost = priceCalculator.calculateChargingCost(10, policy); // Placeholder: 10 kWh
 
             BillingItem item = BillingItem.builder()
-                    .itemId(UUID.randomUUID().toString())
                     .type(BillingItemType.EV_CHARGING)
                     .description("EV Charging fee")
                     .amountCents(chargingCost)
@@ -94,7 +90,6 @@ public class BillingEventListener {
             // Find invoice or create new
             // Simplified: always create a separate one for charging if not easily correlated in this demo
             Invoice invoice = Invoice.builder()
-                    .invoiceId(UUID.randomUUID().toString())
                     .userId(event.userId())
                     .items(new ArrayList<>(List.of(item)))
                     .status(InvoiceStatus.PENDING)

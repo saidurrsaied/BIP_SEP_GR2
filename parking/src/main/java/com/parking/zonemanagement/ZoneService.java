@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,6 @@ public class ZoneService {
     @Transactional
     public ParkingZone createZone(String name, String address, String city, double lat, double lng, PricingPolicy pricingPolicy) {
         ParkingZone zone = ParkingZone.builder()
-                .zoneId(UUID.randomUUID().toString())
                 .name(name)
                 .address(address)
                 .city(city)
@@ -42,12 +40,11 @@ public class ZoneService {
     }
 
     @Transactional
-    public ParkingSpace addSpaceToZone(String zoneId, HasChargingPoint hasChargingPoint, String level, String spaceNumber) {
+    public ParkingSpace addSpaceToZone(Long zoneId, HasChargingPoint hasChargingPoint, String level, String spaceNumber) {
         ParkingZone zone = zoneRepository.findById(zoneId)
                 .orElseThrow(() -> new RuntimeException("Zone not found"));
 
         ParkingSpace space = ParkingSpace.builder()
-                .spaceId(UUID.randomUUID().toString())
                 .zoneId(zoneId)
                 .status(SpaceStatus.FREE)
                 .hasChargingPoint(hasChargingPoint)
@@ -62,7 +59,7 @@ public class ZoneService {
     }
 
     @Transactional
-    public void updateSpaceStatus(String spaceId, SpaceStatus newStatus) {
+    public void updateSpaceStatus(Long spaceId, SpaceStatus newStatus) {
         ParkingSpace space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new RuntimeException("Space not found"));
 
@@ -79,18 +76,18 @@ public class ZoneService {
         ));
     }
 
-    public List<ParkingSpace> getAvailableSpaces(String zoneId) {
+    public List<ParkingSpace> getAvailableSpaces(Long zoneId) {
         return spaceRepository.findByZoneId(zoneId).stream()
                 .filter(s -> s.getStatus() == SpaceStatus.FREE)
                 .toList();
     }
 
-    public ParkingSpace getSpaceById(String spaceId) {
+    public ParkingSpace getSpaceById(Long spaceId) {
         return spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new RuntimeException("Space not found"));
     }
 
-    public PricingPolicy getPricingPolicy(String zoneId) {
+    public PricingPolicy getPricingPolicy(Long zoneId) {
         return zoneRepository.findById(zoneId)
                 .map(ParkingZone::getPricingPolicy)
                 .orElseThrow(() -> new RuntimeException("Zone not found"));

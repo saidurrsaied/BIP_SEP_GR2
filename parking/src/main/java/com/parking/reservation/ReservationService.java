@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class ReservationService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public Reservation placeReservation(String userId, String spaceId, Instant from, Instant until) {
+    public Reservation placeReservation(Long userId, Long spaceId, Instant from, Instant until) {
         reservationValidator.validate(userId, spaceId, from, until);
 
         ParkingSpace space = zoneService.getSpaceById(spaceId);
@@ -36,7 +35,6 @@ public class ReservationService {
         zoneService.updateSpaceStatus(spaceId, SpaceStatus.RESERVED);
 
         Reservation reservation = Reservation.builder()
-                .reservationId(UUID.randomUUID().toString())
                 .userId(userId)
                 .spaceId(spaceId)
                 .zoneId(space.getZoneId())
@@ -62,7 +60,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public void cancelReservation(String reservationId) {
+    public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
@@ -80,7 +78,7 @@ public class ReservationService {
     }
 
     @Transactional
-    public void completeReservation(String reservationId) {
+    public void completeReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
@@ -99,12 +97,12 @@ public class ReservationService {
         ));
     }
 
-    public Reservation getReservation(String reservationId) {
+    public Reservation getReservation(Long reservationId) {
         return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
     }
 
-    public List<Reservation> getReservationsForUser(String userId) {
+    public List<Reservation> getReservationsForUser(Long userId) {
         return reservationRepository.findByUserId(userId);
     }
 }

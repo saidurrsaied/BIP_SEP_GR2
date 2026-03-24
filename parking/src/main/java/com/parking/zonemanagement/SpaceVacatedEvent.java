@@ -3,9 +3,9 @@ package com.parking.zonemanagement;
 import java.time.Instant;
 
 public record SpaceVacatedEvent(
-    String spaceId,
-    String zoneId,
-    String userId,
+    Long spaceId,
+    Long zoneId,
+    Long userId,
     HasChargingPoint hasChargingPoint,
     long occupationDurationMinutes,
     Instant occurredAt

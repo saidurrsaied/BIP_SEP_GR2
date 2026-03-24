@@ -3,8 +3,8 @@ package com.parking.zonemanagement;
 import java.time.Instant;
 
 public record SpaceStatusChangedEvent(
-    String spaceId,
-    String zoneId,
+    Long spaceId,
+    Long zoneId,
     SpaceStatus oldStatus,
     SpaceStatus newStatus,
     Instant occurredAt

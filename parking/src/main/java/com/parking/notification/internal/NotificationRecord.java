@@ -13,10 +13,11 @@ import java.time.Instant;
 @Builder
 public class NotificationRecord {
     @Id
-    private String notificationId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long notificationId;
 
     private String event;
-    private String userId;
+    private Long userId;
     private Instant sentAt;
     private String channel;
     private String status;

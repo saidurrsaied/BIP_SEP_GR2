@@ -12,9 +12,10 @@ import lombok.*;
 @Builder
 public class ParkingSpace {
     @Id
-    private String spaceId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long spaceId;
 
-    private String zoneId;
+    private Long zoneId;
 
     @Enumerated(EnumType.STRING)
     private SpaceStatus status;

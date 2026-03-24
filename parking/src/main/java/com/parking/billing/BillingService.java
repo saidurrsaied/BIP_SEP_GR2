@@ -11,12 +11,12 @@ public class BillingService {
 
     private final InvoiceRepository invoiceRepository;
 
-    public Invoice getInvoice(String invoiceId) {
+    public Invoice getInvoice(Long invoiceId) {
         return invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
     }
 
-    public List<Invoice> getUserBillingHistory(String userId) {
+    public List<Invoice> getUserBillingHistory(Long userId) {
         return invoiceRepository.findByUserId(userId);
     }
 }

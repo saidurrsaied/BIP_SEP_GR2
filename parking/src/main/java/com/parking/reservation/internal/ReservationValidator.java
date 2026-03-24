@@ -5,7 +5,7 @@ import java.time.Instant;
 
 @Component
 public class ReservationValidator {
-    public void validate(String userId, String spaceId, Instant from, Instant until) {
+    public void validate(Long userId, Long spaceId, Instant from, Instant until) {
         if (from.isAfter(until)) {
             throw new RuntimeException("Reservation start must be before end");
         }

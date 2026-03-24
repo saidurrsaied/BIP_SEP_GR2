@@ -13,11 +13,12 @@ import java.time.Instant;
 @Builder
 public class Reservation {
     @Id
-    private String reservationId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long reservationId;
 
-    private String userId; // Plain ID reference
-    private String spaceId; // Plain ID reference
-    private String zoneId; // Plain ID reference
+    private Long userId; // Plain ID reference
+    private Long spaceId; // Plain ID reference
+    private Long zoneId; // Plain ID reference
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;

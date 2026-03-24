@@ -15,7 +15,7 @@ public class MapOverlayService {
 
     private final ZoneRepository zoneRepository;
 
-    public MapData getEnrichedMapData(String zoneId) {
+    public MapData getEnrichedMapData(Long zoneId) {
         return zoneRepository.findById(zoneId)
                 .map(this::mapToData)
                 .orElseThrow(() -> new RuntimeException("Zone not found"));
@@ -46,7 +46,7 @@ public class MapOverlayService {
     @Getter
     @Builder
     public static class MapData {
-        private String zoneId;
+        private Long zoneId;
         private String name;
         private double latitude;
         private double longitude;
@@ -56,7 +56,7 @@ public class MapOverlayService {
     @Getter
     @Builder
     public static class SpaceData {
-        private String spaceId;
+        private Long spaceId;
         private SpaceStatus status;
         private HasChargingPoint hasChargingPoint;
     }

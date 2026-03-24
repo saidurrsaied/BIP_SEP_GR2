@@ -3,8 +3,8 @@ package com.parking.reservation;
 import java.time.Instant;
 
 public record ReservationCancelledEvent(
-    String reservationId,
-    String userId,
-    String spaceId,
+    Long reservationId,
+    Long userId,
+    Long spaceId,
     Instant occurredAt
 ) {}

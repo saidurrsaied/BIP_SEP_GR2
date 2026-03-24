@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SpaceRepository extends JpaRepository<ParkingSpace, String> {
-    List<ParkingSpace> findByZoneId(String zoneId);
+public interface SpaceRepository extends JpaRepository<ParkingSpace, Long> {
+    List<ParkingSpace> findByZoneId(Long zoneId);
 }

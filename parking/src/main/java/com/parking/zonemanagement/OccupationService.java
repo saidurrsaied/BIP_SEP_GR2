@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +21,12 @@ public class OccupationService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void markSpaceOccupied(String spaceId, String userId) {
+    public void markSpaceOccupied(Long spaceId, Long userId) {
         ParkingSpace space = zoneService.getSpaceById(spaceId);
 
         zoneService.updateSpaceStatus(spaceId, SpaceStatus.OCCUPIED);
 
         OccupationRecord record = OccupationRecord.builder()
-                .recordId(UUID.randomUUID().toString())
                 .spaceId(spaceId)
                 .userId(userId)
                 .startTime(Instant.now())
@@ -47,7 +45,7 @@ public class OccupationService {
     }
 
     @Transactional
-    public OccupationRecord markSpaceVacated(String spaceId) {
+    public OccupationRecord markSpaceVacated(Long spaceId) {
         OccupationRecord record = occupationRepository.findBySpaceIdAndEndTimeIsNull(spaceId)
                 .orElseThrow(() -> new RuntimeException("No active occupation found for space: " + spaceId));
 
@@ -72,7 +70,7 @@ public class OccupationService {
         return record;
     }
 
-    public OccupationRecord getCurrentOccupancy(String spaceId) {
+    public OccupationRecord getCurrentOccupancy(Long spaceId) {
         return occupationRepository.findBySpaceIdAndEndTimeIsNull(spaceId).orElse(null);
     }
 }

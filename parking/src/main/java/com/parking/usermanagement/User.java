@@ -13,7 +13,8 @@ import java.time.Instant;
 @Builder
 public class User {
     @Id
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
     @Column(unique = true, nullable = false)
     private String email;

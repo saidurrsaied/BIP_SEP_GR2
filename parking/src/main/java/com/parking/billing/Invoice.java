@@ -14,10 +14,11 @@ import java.util.List;
 @Builder
 public class Invoice {
     @Id
-    private String invoiceId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long invoiceId;
 
-    private String userId; // Plain ID
-    private String reservationId; // Plain ID
+    private Long userId; // Plain ID
+    private Long reservationId; // Plain ID
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "invoiceId")

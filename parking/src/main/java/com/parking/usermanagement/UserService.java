@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +19,7 @@ public class UserService {
 
     @Transactional
     public User registerUser(String email, String password, UserRole role) {
-        String userId = UUID.randomUUID().toString();
         User user = User.builder()
-                .userId(userId)
                 .email(email)
                 .hashedPassword(passwordHasher.hash(password))
                 .role(role)
@@ -49,12 +46,12 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
     }
 
-    public User findUserById(String userId) {
+    public User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public UserRole getUserRole(String userId) {
+    public UserRole getUserRole(Long userId) {
         return findUserById(userId).getRole();
     }
 }

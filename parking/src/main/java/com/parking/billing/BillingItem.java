@@ -12,7 +12,8 @@ import lombok.*;
 @Builder
 public class BillingItem {
     @Id
-    private String itemId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long itemId;
 
     @Enumerated(EnumType.STRING)
     private BillingItemType type;

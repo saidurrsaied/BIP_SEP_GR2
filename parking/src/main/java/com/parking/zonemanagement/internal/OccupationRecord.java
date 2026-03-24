@@ -14,10 +14,11 @@ import java.time.Instant;
 @Builder
 public class OccupationRecord {
     @Id
-    private String recordId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long recordId;
 
-    private String spaceId;
-    private String userId; // Nullable for walk-ins
+    private Long spaceId;
+    private Long userId; // Nullable for walk-ins
     private Instant startTime;
     private Instant endTime;
 

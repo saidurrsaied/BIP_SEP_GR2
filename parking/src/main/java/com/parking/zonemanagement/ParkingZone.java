@@ -14,7 +14,8 @@ import java.util.List;
 @Builder
 public class ParkingZone {
     @Id
-    private String zoneId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long zoneId;
 
     private String name;
     private String city;

@@ -12,7 +12,6 @@ import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -52,9 +51,8 @@ public class NotificationService {
         }
     }
 
-    private void saveRecord(String eventType, String userId, String channel, String status) {
+    private void saveRecord(String eventType, Long userId, String channel, String status) {
         notificationRepository.save(NotificationRecord.builder()
-                .notificationId(UUID.randomUUID().toString())
                 .event(eventType)
                 .userId(userId)
                 .sentAt(Instant.now())
