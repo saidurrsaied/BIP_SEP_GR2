@@ -6,7 +6,7 @@ public record SpaceVacatedEvent(
     String spaceId,
     String zoneId,
     String userId,
-    HasChargingPoint hasChargingPoint,
+    ChargingPoint chargingPoint,
     long occupationDurationMinutes,
     Instant occurredAt
 ) {}

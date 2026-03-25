@@ -2,7 +2,7 @@ package com.parking.billing.internal;
 
 import com.parking.billing.*;
 import com.parking.reservation.ReservationCompletedEvent;
-import com.parking.zonemanagement.HasChargingPoint;
+import com.parking.zonemanagement.ChargingPoint;
 import com.parking.zonemanagement.SpaceVacatedEvent;
 import com.parking.zonemanagement.ZoneService;
 import com.parking.zonemanagement.PricingPolicy;
@@ -74,7 +74,7 @@ public class BillingEventListener {
     @ApplicationModuleListener
     @Transactional
     public void onSpaceVacated(SpaceVacatedEvent event) {
-        if (event.hasChargingPoint() == HasChargingPoint.TRUE) {
+        if (event.chargingPoint() != ChargingPoint.FALSE) {
             // Logic to append EV_CHARGING cost to existing invoice
             // For simplicity, we look for a PENDING or recent PAID invoice for this user and reservation
             // If none found (e.g., walk-in), we might create a new one.

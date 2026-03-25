@@ -1,6 +1,6 @@
 package com.parking.zonemanagement.internal;
 
-import com.parking.zonemanagement.HasChargingPoint;
+import com.parking.zonemanagement.ChargingPoint;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -22,5 +22,5 @@ public class OccupationRecord {
     private Instant endTime;
 
     @Enumerated(EnumType.STRING)
-    private HasChargingPoint hasChargingPoint;
+    private ChargingPoint hasChargingPoint;
 }

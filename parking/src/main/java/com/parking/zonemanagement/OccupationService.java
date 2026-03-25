@@ -32,7 +32,7 @@ public class OccupationService {
                 .spaceId(spaceId)
                 .userId(userId)
                 .startTime(Instant.now())
-                .hasChargingPoint(space.getHasChargingPoint())
+                .hasChargingPoint(space.getChargingPoint())
                 .build();
 
         occupationRepository.save(record);
@@ -41,7 +41,7 @@ public class OccupationService {
                 spaceId,
                 space.getZoneId(),
                 userId,
-                space.getHasChargingPoint(),
+                space.getChargingPoint(),
                 Instant.now()
         ));
     }

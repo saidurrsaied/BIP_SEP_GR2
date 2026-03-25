@@ -1,6 +1,5 @@
 package com.parking.zonemanagement;
 
-import com.parking.zonemanagement.PricingPolicy;
 import com.parking.zonemanagement.internal.SpaceRepository;
 import com.parking.zonemanagement.internal.ZoneRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,7 @@ public class ZoneService {
     }
 
     @Transactional
-    public ParkingSpace addSpaceToZone(String zoneId, HasChargingPoint hasChargingPoint, String level, String spaceNumber) {
+    public ParkingSpace addSpaceToZone(String zoneId, ChargingPoint chargingPoint, String level, String spaceNumber) {
         ParkingZone zone = zoneRepository.findById(zoneId)
                 .orElseThrow(() -> new RuntimeException("Zone not found"));
 
@@ -50,7 +49,7 @@ public class ZoneService {
                 .spaceId(UUID.randomUUID().toString())
                 .zoneId(zoneId)
                 .status(SpaceStatus.FREE)
-                .hasChargingPoint(hasChargingPoint)
+                .chargingPoint(chargingPoint)
                 .level(level)
                 .spaceNumber(spaceNumber)
                 .build();

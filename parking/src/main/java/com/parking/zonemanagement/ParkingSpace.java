@@ -20,7 +20,7 @@ public class ParkingSpace {
     private SpaceStatus status;
 
     @Enumerated(EnumType.STRING)
-    private HasChargingPoint hasChargingPoint;
+    private ChargingPoint chargingPoint;
 
     private String level;
     private String spaceNumber;

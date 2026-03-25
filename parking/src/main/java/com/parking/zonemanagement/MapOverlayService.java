@@ -37,7 +37,7 @@ public class MapOverlayService {
                         .map(s -> SpaceData.builder()
                                 .spaceId(s.getSpaceId())
                                 .status(s.getStatus())
-                                .hasChargingPoint(s.getHasChargingPoint())
+                                .chargingPoint(s.getChargingPoint())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
@@ -58,6 +58,6 @@ public class MapOverlayService {
     public static class SpaceData {
         private String spaceId;
         private SpaceStatus status;
-        private HasChargingPoint hasChargingPoint;
+        private ChargingPoint chargingPoint;
     }
 }
