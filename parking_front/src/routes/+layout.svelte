@@ -1,5 +1,6 @@
 <script lang="ts">
-	import './layout.css';
+	// Verander ./layout.css naar ./app.css (of waar je die grote lijst hebt staan)
+	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
