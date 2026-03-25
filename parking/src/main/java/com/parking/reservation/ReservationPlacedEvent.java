@@ -7,7 +7,6 @@ public record ReservationPlacedEvent(
     Long reservationId,
     Long userId,
     UUID spaceId,
-    UUID zoneId,
     Instant from,
     Instant until,
     Instant occurredAt

@@ -19,7 +19,6 @@ public class Reservation {
 
     private Long userId; // Plain ID reference
     private UUID spaceId; // Plain ID reference
-    private UUID zoneId; // Plain ID reference
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;

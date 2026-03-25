@@ -15,5 +15,8 @@ public class ReservationValidator {
             throw new BusinessException("Reservation start time cannot be in the past");
         }
         // Additional business rules would go here
+
+        // TODO : is there already a reservation for that space at that time?
+
     }
 }

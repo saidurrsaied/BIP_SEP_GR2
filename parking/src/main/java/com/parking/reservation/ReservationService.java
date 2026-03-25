@@ -40,7 +40,6 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
                 .userId(userId)
                 .spaceId(spaceId)
-                .zoneId(space.getZone().getZoneId())
                 .status(ReservationStatus.CONFIRMED)
                 .reservedFrom(from)
                 .reservedUntil(until)
@@ -53,7 +52,6 @@ public class ReservationService {
                 reservation.getReservationId(),
                 reservation.getUserId(),
                 reservation.getSpaceId(),
-                reservation.getZoneId(),
                 reservation.getReservedFrom(),
                 reservation.getReservedUntil(),
                 reservation.getCreatedAt()
@@ -94,7 +92,6 @@ public class ReservationService {
                 reservation.getReservationId(),
                 reservation.getUserId(),
                 reservation.getSpaceId(),
-                reservation.getZoneId(),
                 durationMinutes,
                 Instant.now()
         ));
