@@ -37,21 +37,19 @@ public class BillingEventListener {
                 .durationMinutes((int) event.durationMinutes())
                 .build();
 
-        // TODO: Fix the get currency
         Invoice invoice = Invoice.builder()
                 .userId(event.userId())
                 .reservationId(event.reservationId())
                 .items(new ArrayList<>(List.of(item)))
                 .status(InvoiceStatus.PENDING)
                 .totalAmountCents(cost)
-                .currency(policy.getCurrency())
                 .createdAt(Instant.now())
                 .build();
 
         invoiceRepository.save(invoice);
 
         // Initiate payment
-        boolean success = paymentGatewayClient.processPayment(invoice.getInvoiceId(), cost, invoice.getCurrency());
+        boolean success = paymentGatewayClient.processPayment(invoice.getInvoiceId(), cost);
         if (success) {
             invoice.setStatus(InvoiceStatus.PAID);
             invoice.setPaidAt(Instant.now());
@@ -88,13 +86,11 @@ public class BillingEventListener {
 
             // Find invoice or create new
             // Simplified: always create a separate one for charging if not easily correlated in this demo
-            // TODO: Fix the get currency
             Invoice invoice = Invoice.builder()
                     .userId(event.userId())
                     .items(new ArrayList<>(List.of(item)))
                     .status(InvoiceStatus.PENDING)
                     .totalAmountCents(chargingCost)
-                    .currency(policy.getCurrency())
                     .createdAt(Instant.now())
                     .build();
 
