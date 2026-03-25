@@ -75,8 +75,7 @@ public class BillingEventListener {
             // Assuming we correlate by userId and spaceId for currently being processed.
             
             PricingPolicy policy = zoneService.getPricingPolicy(event.zoneId());
-            // TODO: fix the fastCharging boolean
-            long chargingCost = priceCalculator.calculateChargingCost(10, policy, true ); // Placeholder: 10 kWh
+            long chargingCost = priceCalculator.calculateChargingCost(10, policy, event.chargingPoint() == ChargingPoint.FAST_CHARGER); // Placeholder: 10 kWh
 
             BillingItem item = BillingItem.builder()
                     .type(BillingItemType.EV_CHARGING)
