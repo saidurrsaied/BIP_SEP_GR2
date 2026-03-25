@@ -16,7 +16,7 @@
     <span class="text-xl font-black tracking-tighter text-blue-900 dark:text-blue-50">D-Parking</span>
     <nav class="hidden md:flex items-center gap-6">
       <a
-        class="text-blue-900 dark:text-blue-50 font-semibold border-b-2 border-green-500 transition-all"
+        class="text-slate-500 dark:text-slate-400 font-medium hover:text-blue-700 transition-colors"
         href="/"
       >
         Map
@@ -36,22 +36,8 @@
     </nav>
   </div>
   <div class="flex items-center gap-4">
-    <div class="relative hidden sm:block">
-      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-        <span class="material-symbols-outlined text-on-surface-variant text-lg">search</span>
-      </div>
-      <input
-        bind:value={searchQuery}
-        class="bg-surface-container-high border-none rounded-xl py-2 pl-10 pr-4 w-64 text-sm focus:ring-2 focus:ring-secondary transition-all"
-        placeholder="Search destination..."
-        type="text"
-      />
-    </div>
     <button class="text-on-surface-variant hover:text-primary transition-colors">
       <span class="material-symbols-outlined">notifications</span>
-    </button>
-    <button class="text-on-surface-variant hover:text-primary transition-colors">
-      <span class="material-symbols-outlined">help</span>
     </button>
     <div
       class="h-8 w-8 rounded-full overflow-hidden bg-surface-container ml-2 cursor-pointer active:opacity-80 transition-all border border-outline-variant"

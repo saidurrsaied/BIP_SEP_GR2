@@ -31,23 +31,6 @@
     <div class="absolute inset-0 bg-primary/5"></div>
   </div>
 
-  <!-- Floating Map Controls -->
-  <div class="absolute right-6 top-6 flex flex-col gap-2">
-    <div class="bg-surface-container-lowest rounded-lg shadow-xl flex flex-col overflow-hidden">
-      <button class="p-3 hover:bg-surface-container transition-colors text-primary border-b border-surface-container">
-        <span class="material-symbols-outlined">add</span>
-      </button>
-      <button class="p-3 hover:bg-surface-container transition-colors text-primary">
-        <span class="material-symbols-outlined">remove</span>
-      </button>
-    </div>
-    <button class="p-3 bg-surface-container-lowest rounded-lg shadow-xl hover:bg-surface-container transition-colors text-primary">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">my_location</span>
-    </button>
-    <button class="p-3 bg-surface-container-lowest rounded-lg shadow-xl hover:bg-surface-container transition-colors text-primary">
-      <span class="material-symbols-outlined">layers</span>
-    </button>
-  </div>
 
   <!-- Map Pins -->
   {#each zones as mapData, idx (mapData.zone.id)}
