@@ -143,7 +143,7 @@
           <div class="border-t border-surface-container pt-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-on-surface-variant")>Associated Invoice</p>
+                <p class="text-sm text-on-surface-variant">Associated Invoice</p>
                 <p class="text-lg font-bold text-primary">Invoice #{reservation.id}</p>
               </div>
               <button class="text-secondary font-semibold hover:opacity-70 transition-opacity flex items-center gap-1">
