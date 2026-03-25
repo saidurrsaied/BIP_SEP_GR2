@@ -1,11 +1,12 @@
 package com.parking.zonemanagement;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record SpaceOccupiedEvent(
-    Long spaceId,
-    Long zoneId,
+    UUID spaceId,
+    UUID zoneId,
     Long userId,
-    HasChargingPoint hasChargingPoint,
+    ChargingPoint chargingPoint,
     Instant occurredAt
 ) {}

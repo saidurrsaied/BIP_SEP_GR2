@@ -3,7 +3,10 @@ package com.parking.zonemanagement;
 import com.parking.zonemanagement.PricingPolicy;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "zm_zones")
@@ -14,8 +17,8 @@ import java.util.List;
 @Builder
 public class ParkingZone {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long zoneId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID zoneId;
 
     private String name;
     private String city;
@@ -23,9 +26,9 @@ public class ParkingZone {
     private double latitude;
     private double longitude;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "zoneId")
-    private List<ParkingSpace> spaces;
+    @OneToMany(mappedBy = "zone", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ParkingSpace> spaces = new ArrayList<>();
 
     @Embedded
     private PricingPolicy pricingPolicy;

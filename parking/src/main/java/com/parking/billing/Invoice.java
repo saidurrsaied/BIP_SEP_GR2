@@ -33,6 +33,7 @@ public class Invoice {
     private List<BillingItem> items;
 
     private Long reservationId;
+    private long totalAmountCents;
     private Instant createdAt;
 
     // Compatibility methods

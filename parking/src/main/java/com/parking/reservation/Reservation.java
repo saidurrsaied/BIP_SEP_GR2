@@ -3,6 +3,7 @@ package com.parking.reservation;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "res_reservations")
@@ -17,8 +18,7 @@ public class Reservation {
     private Long reservationId;
 
     private Long userId; // Plain ID reference
-    private Long spaceId; // Plain ID reference
-    private Long zoneId; // Plain ID reference
+    private UUID spaceId; // Plain ID reference
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
