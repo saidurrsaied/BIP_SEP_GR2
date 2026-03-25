@@ -7,7 +7,6 @@ public record ReservationCompletedEvent(
     Long reservationId,
     Long userId,
     UUID spaceId,
-    UUID zoneId,
     long durationMinutes,
     Instant occurredAt
 ) {}
