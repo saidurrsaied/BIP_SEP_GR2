@@ -17,6 +17,7 @@ public class ReservationValidator {
         // Additional business rules would go here
 
         // TODO : is there already a reservation for that space at that time?
-
+            //  no one can be parked at the time of making the reservation of that spot
+            // No one can have a reservation interfering with the time slot that the next person wants
     }
 }
