@@ -137,8 +137,6 @@ public class ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + reservationId + " not found"));
     }
 
-
-
     public List<Reservation> getReservationsForUser(Long userId) {
         return reservationRepository.findByUserId(userId);
     }
