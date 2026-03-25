@@ -16,6 +16,18 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: "aogu ypal xixj mgin"
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 # Security Configuration
 security:
@@ -28,3 +40,8 @@ external-services:
   mapping: ${MAPPING_SERVICE_URL:http://mapping-service/api}
   payment: ${PAYMENT_SERVICE_URL:http://payment-service/api}
   notification: ${NOTIFICATION_SERVICE_URL:http://notification-service/api}
+
+#email
+app:
+  mail:
+    from: parking.dortmund@gmail.com
