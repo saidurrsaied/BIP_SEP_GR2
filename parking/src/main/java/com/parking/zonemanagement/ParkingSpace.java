@@ -3,6 +3,8 @@ package com.parking.zonemanagement;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "zm_spaces")
 @Getter
@@ -13,9 +15,11 @@ import lombok.*;
 public class ParkingSpace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long spaceId;
+    private UUID spaceId;
 
-    private Long zoneId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "zone_id",  nullable = false)
+    private ParkingZone zone;
 
     @Enumerated(EnumType.STRING)
     private SpaceStatus status;

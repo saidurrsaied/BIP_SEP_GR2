@@ -4,6 +4,7 @@ import com.parking.zonemanagement.ChargingPoint;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "zm_occupation_records")
@@ -15,9 +16,9 @@ import java.time.Instant;
 public class OccupationRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recordId;
+    private UUID recordId;
 
-    private Long spaceId;
+    private UUID spaceId;
     private Long userId; // Nullable for walk-ins
     private Instant startTime;
     private Instant endTime;

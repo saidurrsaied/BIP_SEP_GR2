@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class PricingPolicy {
     private int hourlyRateCents;
     private int chargingRatePerKwhCents;
+    private int fastChargingRatePerKwhCents;
     private String currency;
 }

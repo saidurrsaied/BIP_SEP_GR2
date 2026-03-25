@@ -3,7 +3,6 @@ package com.parking.zonemanagement;
 import com.parking.exception.BusinessException;
 import com.parking.zonemanagement.internal.OccupationRecord;
 import com.parking.zonemanagement.internal.OccupationRepository;
-import com.parking.zonemanagement.internal.SpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -11,18 +10,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class OccupationService {
 
     private final OccupationRepository occupationRepository;
-    private final SpaceRepository spaceRepository;
     private final ZoneService zoneService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void markSpaceOccupied(Long spaceId, Long userId) {
+        public void markSpaceOccupied(UUID spaceId, Long userId) {
         ParkingSpace space = zoneService.getSpaceById(spaceId);
 
         zoneService.updateSpaceStatus(spaceId, SpaceStatus.OCCUPIED);
@@ -38,7 +37,7 @@ public class OccupationService {
 
         eventPublisher.publishEvent(new SpaceOccupiedEvent(
                 spaceId,
-                space.getZoneId(),
+                space.getZone().getZoneId(),
                 userId,
                 space.getChargingPoint(),
                 Instant.now()
@@ -46,7 +45,7 @@ public class OccupationService {
     }
 
     @Transactional
-    public OccupationRecord markSpaceVacated(Long spaceId) {
+    public OccupationRecord markSpaceVacated(UUID spaceId) {
         OccupationRecord record = occupationRepository.findBySpaceIdAndEndTimeIsNull(spaceId)
                 .orElseThrow(() -> new BusinessException("Space " + spaceId + " is not currently occupied"));
 
@@ -61,7 +60,7 @@ public class OccupationService {
 
         eventPublisher.publishEvent(new SpaceVacatedEvent(
                 spaceId,
-                space.getZoneId(),
+                space.getZone().getZoneId(),
                 record.getUserId(),
                 record.getHasChargingPoint(),
                 durationMinutes,
@@ -71,7 +70,7 @@ public class OccupationService {
         return record;
     }
 
-    public OccupationRecord getCurrentOccupancy(Long spaceId) {
+    public OccupationRecord getCurrentOccupancy(UUID spaceId) {
         return occupationRepository.findBySpaceIdAndEndTimeIsNull(spaceId).orElse(null);
     }
 }

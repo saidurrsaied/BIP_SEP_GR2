@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -42,5 +43,5 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getReservationsForUser(userId));
     }
 
-    public record PlaceReservationRequest(Long userId, Long spaceId, Instant from, Instant until) {}
+    public record PlaceReservationRequest(Long userId, UUID spaceId, Instant from, Instant until) {}
 }

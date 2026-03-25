@@ -9,12 +9,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface SpaceRepository extends JpaRepository<ParkingSpace, Long> {
-    List<ParkingSpace> findByZoneId(Long zoneId);
+public interface SpaceRepository extends JpaRepository<ParkingSpace, UUID> {
+    List<ParkingSpace> findByZoneId(UUID zoneId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM ParkingSpace s WHERE s.spaceId = :spaceId")
-    Optional<ParkingSpace> findByIdForUpdate(Long spaceId);
+    Optional<ParkingSpace> findByIdForUpdate(UUID spaceId);
 }

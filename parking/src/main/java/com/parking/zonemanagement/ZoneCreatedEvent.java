@@ -1,9 +1,10 @@
 package com.parking.zonemanagement;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record ZoneCreatedEvent(
-    Long zoneId,
+    UUID zoneId,
     String name,
     Instant occurredAt
 ) {}

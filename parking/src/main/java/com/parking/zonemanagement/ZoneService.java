@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -23,7 +24,7 @@ public class ZoneService {
     @Transactional
     public ParkingZone createZone(String name, String address, String city, double lat, double lng, PricingPolicy pricingPolicy) {
         ParkingZone zone = ParkingZone.builder()
-                .zoneId(UUID.randomUUID().toString())
+                .zoneId(UUID.randomUUID())
                 .name(name)
                 .address(address)
                 .city(city)
@@ -40,14 +41,42 @@ public class ZoneService {
         return zone;
     }
 
+    public ParkingZone getZoneById(UUID zoneId) {
+        return zoneRepository.findById(zoneId)
+                .orElseThrow(() -> new RuntimeException("Zone not found"));
+    }
+
     @Transactional
-    public ParkingSpace addSpaceToZone(String zoneId, ChargingPoint chargingPoint, String level, String spaceNumber) {
+    public ParkingZone updateZone(UUID zoneId, String name, String address, String city, double lat, double lng, PricingPolicy pricingPolicy) {
+        ParkingZone zone = zoneRepository.findById(zoneId)
+                .orElseThrow(() -> new RuntimeException("Zone not found"));
+
+        zone.setName(name);
+        zone.setAddress(address);
+        zone.setCity(city);
+        zone.setLatitude(lat);
+        zone.setLongitude(lng);
+        zone.setPricingPolicy(pricingPolicy);
+
+        return zoneRepository.save(zone);
+    }
+
+    @Transactional
+    public void deleteZone(UUID zoneId) {
+        ParkingZone zone = zoneRepository.findById(zoneId)
+                .orElseThrow(() -> new RuntimeException("Zone not found"));
+
+        zoneRepository.delete(zone);
+    }
+
+    @Transactional
+    public ParkingSpace addSpaceToZone(UUID zoneId, ChargingPoint chargingPoint, String level, String spaceNumber) {
         ParkingZone zone = zoneRepository.findById(zoneId)
                 .orElseThrow(() -> new RuntimeException("Zone not found"));
 
         ParkingSpace space = ParkingSpace.builder()
-                .spaceId(UUID.randomUUID().toString())
-                .zoneId(zoneId)
+                .spaceId(UUID.randomUUID())
+                .zone(zone)
                 .status(SpaceStatus.FREE)
                 .chargingPoint(chargingPoint)
                 .level(level)
@@ -61,7 +90,7 @@ public class ZoneService {
     }
 
     @Transactional
-    public void updateSpaceStatus(String spaceId, SpaceStatus newStatus) {
+    public void updateSpaceStatus(UUID spaceId, SpaceStatus newStatus) {
         ParkingSpace space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new RuntimeException("Space not found"));
 
@@ -71,27 +100,31 @@ public class ZoneService {
 
         eventPublisher.publishEvent(new SpaceStatusChangedEvent(
                 space.getSpaceId(),
-                space.getZoneId(),
+                space.getZone().getZoneId(),
                 oldStatus,
                 newStatus,
                 Instant.now()
         ));
     }
 
-    public List<ParkingSpace> getAvailableSpaces(String zoneId) {
+    public List<ParkingSpace> getAvailableSpaces(UUID zoneId) {
         return spaceRepository.findByZoneId(zoneId).stream()
                 .filter(s -> s.getStatus() == SpaceStatus.FREE)
                 .toList();
     }
 
-    public ParkingSpace getSpaceById(String spaceId) {
+    public ParkingSpace getSpaceById(UUID spaceId) {
         return spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new RuntimeException("Space not found"));
     }
 
-    public PricingPolicy getPricingPolicy(String zoneId) {
+    public PricingPolicy getPricingPolicy(UUID zoneId) {
         return zoneRepository.findById(zoneId)
                 .map(ParkingZone::getPricingPolicy)
                 .orElseThrow(() -> new RuntimeException("Zone not found"));
+    }
+
+    public List<ParkingZone> getAllZones() {
+        return zoneRepository.findAll();
     }
 }

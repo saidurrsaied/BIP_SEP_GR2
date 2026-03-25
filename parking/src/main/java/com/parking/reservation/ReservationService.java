@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +27,10 @@ public class ReservationService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public Reservation placeReservation(Long userId, Long spaceId, Instant from, Instant until) {
+    public Reservation placeReservation(Long userId, UUID spaceId, Instant from, Instant until) {
         reservationValidator.validate(userId, spaceId, from, until);
 
-        ParkingSpace space = zoneService.getSpaceByIdForUpdate(spaceId);
+        ParkingSpace space = zoneService.getSpaceById(spaceId);
         if (space.getStatus() != SpaceStatus.FREE) {
             throw new BusinessException("Space " + spaceId + " is not available for reservation (current status: " + space.getStatus() + ")");
         }
@@ -39,7 +40,7 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
                 .userId(userId)
                 .spaceId(spaceId)
-                .zoneId(space.getZoneId())
+                .zoneId(space.getZone().getZoneId())
                 .status(ReservationStatus.CONFIRMED)
                 .reservedFrom(from)
                 .reservedUntil(until)
