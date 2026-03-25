@@ -43,14 +43,13 @@ public class BillingEventListener {
                 .items(new ArrayList<>(List.of(item)))
                 .status(InvoiceStatus.PENDING)
                 .totalAmountCents(cost)
-                .currency(policy.getCurrency())
                 .createdAt(Instant.now())
                 .build();
 
         invoiceRepository.save(invoice);
 
         // Initiate payment
-        boolean success = paymentGatewayClient.processPayment(invoice.getInvoiceId(), cost, invoice.getCurrency());
+        boolean success = paymentGatewayClient.processPayment(invoice.getInvoiceId(), cost);
         if (success) {
             invoice.setStatus(InvoiceStatus.PAID);
             invoice.setPaidAt(Instant.now());
@@ -69,14 +68,8 @@ public class BillingEventListener {
     @ApplicationModuleListener
     public void onSpaceVacated(SpaceVacatedEvent event) {
         if (event.chargingPoint() != ChargingPoint.FALSE) {
-            // Logic to append EV_CHARGING cost to existing invoice
-            // For simplicity, we look for a PENDING or recent PAID invoice for this user and reservation
-            // If none found (e.g., walk-in), we might create a new one.
-            // In a real system, we'd need a more robust way to correlate walk-ins.
-            // Assuming we correlate by userId and spaceId for currently being processed.
-            
             PricingPolicy policy = zoneService.getPricingPolicy(event.zoneId());
-            long chargingCost = priceCalculator.calculateChargingCost(10, policy); // Placeholder: 10 kWh
+            long chargingCost = priceCalculator.calculateChargingCost(10, policy, event.chargingPoint() == ChargingPoint.FAST_CHARGER); // Placeholder: 10 kWh
 
             BillingItem item = BillingItem.builder()
                     .type(BillingItemType.EV_CHARGING)
@@ -84,18 +77,13 @@ public class BillingEventListener {
                     .amountCents(chargingCost)
                     .build();
 
-            // Find invoice or create new
-            // Simplified: always create a separate one for charging if not easily correlated in this demo
-            Invoice invoice = Invoice.builder()
-                    .userId(event.userId())
-                    .items(new ArrayList<>(List.of(item)))
-                    .status(InvoiceStatus.PENDING)
-                    .totalAmountCents(chargingCost)
-                    .currency(policy.getCurrency())
-                    .createdAt(Instant.now())
-                    .build();
+            Invoice existingInvoice = invoiceRepository.findPendingInvoiceByUserId(event.userId())
+                    .orElseThrow(() -> new IllegalStateException("Did not find any active parking invoice for user: " + event.userId()));
 
-            invoiceRepository.save(invoice);
+            existingInvoice.getItems().add(item);
+            existingInvoice.setTotalAmountCents(existingInvoice.getTotalAmountCents() + chargingCost);
+
+            invoiceRepository.save(existingInvoice);
         }
     }
 }
