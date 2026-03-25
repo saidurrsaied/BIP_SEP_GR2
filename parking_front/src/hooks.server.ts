@@ -57,21 +57,19 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 
-	const csp = [
-		"default-src 'none'",
-		`script-src 'self' 'unsafe-inline'`, // Nodig voor Vite in dev-mode
-		"font-src 'self'",
-		// Sta de frontend toe om te praten met zichzelf, de Docker interne backend, én de localhost backend
-		`connect-src 'self' http://localhost:3000 ${BACKEND_URL}`,
-		"frame-ancestors 'self'",
-		"img-src 'self' data:",
-		"form-action 'self'",
-		"style-src 'self' 'unsafe-inline'", // Nodig voor Vite in dev-mode
-		"object-src 'none'",
-		"media-src 'none'",
-		"worker-src 'none'",
-		"base-uri 'self'"
-	].join('; ');
+// src/hooks.server.ts
+const csp = [
+    "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:",
+    "script-src * 'unsafe-inline' 'unsafe-eval'",
+    "connect-src * 'unsafe-inline'",
+    "img-src * data: blob: 'unsafe-inline'",
+    "frame-src *",
+    "style-src * 'unsafe-inline'"
+].join('; ');
+
+response.headers.set('Content-Security-Policy', csp);
+
+	response.headers.set('Content-Security-Policy', csp);
 
 	response.headers.set('Content-Security-Policy', csp);
 
