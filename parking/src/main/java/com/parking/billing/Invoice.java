@@ -28,7 +28,6 @@ public class Invoice {
     private InvoiceStatus status;
 
     private long totalAmountCents;
-    private String currency;
     private Instant createdAt;
     private Instant paidAt;
 }

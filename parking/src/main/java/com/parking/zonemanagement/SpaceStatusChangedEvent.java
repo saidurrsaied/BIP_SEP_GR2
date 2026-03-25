@@ -1,10 +1,11 @@
 package com.parking.zonemanagement;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record SpaceStatusChangedEvent(
-    Long spaceId,
-    Long zoneId,
+    UUID spaceId,
+    UUID zoneId,
     SpaceStatus oldStatus,
     SpaceStatus newStatus,
     Instant occurredAt

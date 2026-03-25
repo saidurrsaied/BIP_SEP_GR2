@@ -1,9 +1,10 @@
 package com.parking.zonemanagement.internal;
 
-import com.parking.zonemanagement.HasChargingPoint;
+import com.parking.zonemanagement.ChargingPoint;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "zm_occupation_records")
@@ -14,14 +15,14 @@ import java.time.Instant;
 @Builder
 public class OccupationRecord {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recordId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID recordId;
 
-    private Long spaceId;
+    private UUID spaceId;
     private Long userId; // Nullable for walk-ins
     private Instant startTime;
     private Instant endTime;
 
     @Enumerated(EnumType.STRING)
-    private HasChargingPoint hasChargingPoint;
+    private ChargingPoint hasChargingPoint;
 }

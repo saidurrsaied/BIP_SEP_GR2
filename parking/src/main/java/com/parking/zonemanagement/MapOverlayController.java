@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/zones")
@@ -19,7 +20,7 @@ public class MapOverlayController {
     }
 
     @GetMapping("/{id}/map")
-    public ResponseEntity<MapOverlayService.MapData> getZoneMap(@PathVariable Long id) {
+    public ResponseEntity<MapOverlayService.MapData> getZoneMap(@PathVariable UUID id) {
         return ResponseEntity.ok(mapOverlayService.getEnrichedMapData(id));
     }
 }
