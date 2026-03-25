@@ -57,19 +57,33 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 
-// src/hooks.server.ts
-const csp = [
-    "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:",
-    "script-src * 'unsafe-inline' 'unsafe-eval'",
-    "connect-src * 'unsafe-inline'",
-    "img-src * data: blob: 'unsafe-inline'",
-    "frame-src *",
-    "style-src * 'unsafe-inline'"
-].join('; ');
-
-response.headers.set('Content-Security-Policy', csp);
-
-	response.headers.set('Content-Security-Policy', csp);
+	const csp = [
+        "default-src 'none'",
+        
+        // Sta de Tailwind CDN toe
+        `script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com`,
+        
+        // Sta Google Fonts bestanden toe
+        "font-src 'self' https://fonts.gstatic.com",
+        
+        // Sta de frontend toe om API calls te doen naar localhost:8080 (vanuit je browser) en backend:8080 (vanuit Docker)
+        `connect-src 'self' http://localhost:8080 ${BACKEND_URL}`,
+        
+        "frame-ancestors 'self'",
+        
+        // Sta plaatjes van Google (voor profielfoto's) toe
+        "img-src 'self' data: https://*.googleusercontent.com http://*.googleusercontent.com",
+        
+        "form-action 'self'",
+        
+        // Sta Google Fonts CSS toe
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        
+        "object-src 'none'",
+        "media-src 'none'",
+        "worker-src 'none'",
+        "base-uri 'self'"
+    ].join('; ');
 
 	response.headers.set('Content-Security-Policy', csp);
 
