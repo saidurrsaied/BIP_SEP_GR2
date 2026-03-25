@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PricingPolicy {
     private int hourlyRateCents;
-    private int chargingRatePerKwhCents;
-    private int fastChargingRatePerKwhCents;
-    private String currency;
+    private int slowMultiplier = 2;
+    private int fastMultiplier = 4;
 }
