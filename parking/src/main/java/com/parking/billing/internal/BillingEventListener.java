@@ -37,6 +37,7 @@ public class BillingEventListener {
                 .durationMinutes((int) event.durationMinutes())
                 .build();
 
+        // TODO: Fix the get currency
         Invoice invoice = Invoice.builder()
                 .userId(event.userId())
                 .reservationId(event.reservationId())
@@ -76,7 +77,8 @@ public class BillingEventListener {
             // Assuming we correlate by userId and spaceId for currently being processed.
             
             PricingPolicy policy = zoneService.getPricingPolicy(event.zoneId());
-            long chargingCost = priceCalculator.calculateChargingCost(10, policy); // Placeholder: 10 kWh
+            // TODO: fix the fastCharging boolean
+            long chargingCost = priceCalculator.calculateChargingCost(10, policy, true ); // Placeholder: 10 kWh
 
             BillingItem item = BillingItem.builder()
                     .type(BillingItemType.EV_CHARGING)
@@ -86,6 +88,7 @@ public class BillingEventListener {
 
             // Find invoice or create new
             // Simplified: always create a separate one for charging if not easily correlated in this demo
+            // TODO: Fix the get currency
             Invoice invoice = Invoice.builder()
                     .userId(event.userId())
                     .items(new ArrayList<>(List.of(item)))
