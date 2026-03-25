@@ -15,7 +15,7 @@ import java.util.UUID;
 @Builder
 public class OccupationRecord {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID recordId;
 
     private UUID spaceId;
