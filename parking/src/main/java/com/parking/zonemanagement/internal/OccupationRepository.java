@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface OccupationRepository extends JpaRepository<OccupationRecord, String> {
-    Optional<OccupationRecord> findBySpaceIdAndEndTimeIsNull(String spaceId);
+public interface OccupationRepository extends JpaRepository<OccupationRecord, Long> {
+    Optional<OccupationRecord> findBySpaceIdAndEndTimeIsNull(Long spaceId);
 }

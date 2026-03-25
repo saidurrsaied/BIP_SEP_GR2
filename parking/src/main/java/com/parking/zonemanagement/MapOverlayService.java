@@ -1,10 +1,12 @@
 package com.parking.zonemanagement;
 
+import com.parking.exception.ResourceNotFoundException;
 import com.parking.zonemanagement.internal.ZoneRepository;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,12 +17,14 @@ public class MapOverlayService {
 
     private final ZoneRepository zoneRepository;
 
-    public MapData getEnrichedMapData(String zoneId) {
+    @Transactional(readOnly = true)
+    public MapData getEnrichedMapData(Long zoneId) {
         return zoneRepository.findById(zoneId)
                 .map(this::mapToData)
-                .orElseThrow(() -> new RuntimeException("Zone not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Zone with id " + zoneId + " not found"));
     }
 
+    @Transactional(readOnly = true)
     public List<MapData> getAllZonesMapData() {
         return zoneRepository.findAll().stream()
                 .map(this::mapToData)
@@ -46,7 +50,7 @@ public class MapOverlayService {
     @Getter
     @Builder
     public static class MapData {
-        private String zoneId;
+        private Long zoneId;
         private String name;
         private double latitude;
         private double longitude;
@@ -56,7 +60,7 @@ public class MapOverlayService {
     @Getter
     @Builder
     public static class SpaceData {
-        private String spaceId;
+        private Long spaceId;
         private SpaceStatus status;
         private ChargingPoint chargingPoint;
     }

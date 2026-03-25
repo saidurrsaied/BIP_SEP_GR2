@@ -3,7 +3,7 @@ package com.parking.zonemanagement;
 import java.time.Instant;
 
 public record ZoneCreatedEvent(
-    String zoneId,
+    Long zoneId,
     String name,
     Instant occurredAt
 ) {}

@@ -1,16 +1,18 @@
 package com.parking.usermanagement.internal;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordHasher {
 
+    private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     public String hash(String rawPassword) {
-        // Placeholder for hashing until security dependency is correctly resolved or for simplicity
-        return "hashed-" + rawPassword;
+        return encoder.encode(rawPassword);
     }
 
     public boolean matches(String rawPassword, String encodedPassword) {
-        return ("hashed-" + rawPassword).equals(encodedPassword);
+        return encoder.matches(rawPassword, encodedPassword);
     }
 }

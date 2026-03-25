@@ -1,6 +1,7 @@
 package com.parking.billing;
 
 import com.parking.billing.internal.InvoiceRepository;
+import com.parking.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -11,12 +12,12 @@ public class BillingService {
 
     private final InvoiceRepository invoiceRepository;
 
-    public Invoice getInvoice(String invoiceId) {
+    public Invoice getInvoice(Long invoiceId) {
         return invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice with id " + invoiceId + " not found"));
     }
 
-    public List<Invoice> getUserBillingHistory(String userId) {
+    public List<Invoice> getUserBillingHistory(Long userId) {
         return invoiceRepository.findByUserId(userId);
     }
 }

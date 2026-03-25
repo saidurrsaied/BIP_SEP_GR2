@@ -1,5 +1,6 @@
 package com.parking.usermanagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
@@ -13,11 +14,13 @@ import java.time.Instant;
 @Builder
 public class User {
     @Id
-    private String userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
     @Column(unique = true, nullable = false)
     private String email;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String hashedPassword;
 

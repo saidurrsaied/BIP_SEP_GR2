@@ -1,16 +1,17 @@
 package com.parking.reservation.internal;
 
+import com.parking.exception.BusinessException;
 import org.springframework.stereotype.Component;
 import java.time.Instant;
 
 @Component
 public class ReservationValidator {
-    public void validate(String userId, String spaceId, Instant from, Instant until) {
+    public void validate(Long userId, Long spaceId, Instant from, Instant until) {
         if (from.isAfter(until)) {
-            throw new RuntimeException("Reservation start must be before end");
+            throw new BusinessException("Reservation start time must be before end time");
         }
         if (from.isBefore(Instant.now())) {
-            throw new RuntimeException("Reservation cannot be in the past");
+            throw new BusinessException("Reservation start time cannot be in the past");
         }
         // Additional business rules would go here
     }

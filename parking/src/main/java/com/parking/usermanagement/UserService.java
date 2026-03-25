@@ -1,5 +1,9 @@
 package com.parking.usermanagement;
 
+import com.parking.exception.BusinessException;
+import com.parking.exception.ConflictException;
+import com.parking.exception.ResourceNotFoundException;
+import com.parking.usermanagement.internal.JwtTokenProvider;
 import com.parking.usermanagement.internal.PasswordHasher;
 import com.parking.usermanagement.internal.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,13 +19,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
+    private final JwtTokenProvider jwtTokenProvider;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public User registerUser(String email, String password, UserRole role) {
-        String userId = UUID.randomUUID().toString();
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new ConflictException("An account with email '" + email + "' already exists");
+        }
+
         User user = User.builder()
-                .userId(userId)
                 .email(email)
                 .hashedPassword(passwordHasher.hash(password))
                 .role(role)
@@ -41,20 +47,22 @@ public class UserService {
         return user;
     }
 
-    public String authenticateUser(String email, String password) {
-        // Simple authentication check. JWT token generation is implied.
-        return userRepository.findByEmail(email)
-                .filter(user -> passwordHasher.matches(password, user.getHashedPassword()))
-                .map(user -> "dummy-jwt-token-for-" + user.getUserId())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+    public AuthResponse authenticateUser(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .filter(u -> passwordHasher.matches(password, u.getHashedPassword()))
+                .orElseThrow(() -> new BusinessException("Invalid email or password"));
+        String token = jwtTokenProvider.generateToken(user.getUserId(), user.getEmail(), user.getRole());
+        return new AuthResponse(token, user);
     }
 
-    public User findUserById(String userId) {
+    public record AuthResponse(String token, User user) {}
+
+    public User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
     }
 
-    public UserRole getUserRole(String userId) {
+    public UserRole getUserRole(Long userId) {
         return findUserById(userId).getRole();
     }
 }
