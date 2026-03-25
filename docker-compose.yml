@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: springboot-backend
     ports:
-      - "3000:3000"
+      - "8080:8080"
       - "5005:5005"
     volumes:
       - ./backend:/home/gradle/src/app:z
