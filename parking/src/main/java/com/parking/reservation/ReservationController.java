@@ -16,9 +16,9 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<Reservation> placeReservation(@RequestBody PlaceReservationRequest request) {
-        return ResponseEntity.ok(reservationService.placeReservation(
-                request.userId(), request.spaceId(), request.from(), request.until()));
+    public ResponseEntity<Void> placeReservation(@RequestBody PlaceReservationRequest request) {
+        reservationService.checkReservationSpace(request.userId, request.spaceId(), request.from(), request.until());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/cancel")

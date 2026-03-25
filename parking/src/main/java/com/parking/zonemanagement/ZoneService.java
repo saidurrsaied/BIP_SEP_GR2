@@ -1,9 +1,12 @@
 package com.parking.zonemanagement;
 
+import com.parking.reservation.ReservationCancelledEvent;
+import com.parking.reservation.ReservationConfirmedEvent;
 import com.parking.zonemanagement.internal.SpaceRepository;
 import com.parking.zonemanagement.internal.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,6 +90,16 @@ public class ZoneService {
         zoneRepository.save(zone);
 
         return space;
+    }
+
+    @ApplicationModuleListener
+    public void updateSpaceToReserved(ReservationConfirmedEvent event) {
+        updateSpaceStatus(event.spaceId(),  SpaceStatus.RESERVED);
+    }
+
+    @ApplicationModuleListener
+    public void updateSpaceToFree(ReservationCancelledEvent event) {
+        updateSpaceStatus(event.spaceId(), SpaceStatus.FREE);
     }
 
     @Transactional

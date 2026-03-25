@@ -4,11 +4,13 @@ import com.parking.exception.BusinessException;
 import com.parking.exception.ResourceNotFoundException;
 import com.parking.reservation.internal.ReservationRepository;
 import com.parking.reservation.internal.ReservationValidator;
+import com.parking.zonemanagement.CheckSpaceIsFreeEvent;
 import com.parking.zonemanagement.ParkingSpace;
 import com.parking.zonemanagement.SpaceStatus;
 import com.parking.zonemanagement.ZoneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,26 +25,23 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final ReservationValidator reservationValidator;
-    private final ZoneService zoneService; // External module dependency
     private final ApplicationEventPublisher eventPublisher;
 
+    public void checkReservationSpace(Long userId, UUID spaceId, Instant from, Instant until) {
+        eventPublisher.publishEvent(new CheckSpaceIsFreeEvent(spaceId, from, until, userId, Instant.now()));
+    }
+
+    @ApplicationModuleListener
     @Transactional
-    public Reservation placeReservation(Long userId, UUID spaceId, Instant from, Instant until) {
-        reservationValidator.validate(userId, spaceId, from, until);
-
-        ParkingSpace space = zoneService.getSpaceById(spaceId);
-        if (space.getStatus() != SpaceStatus.FREE) {
-            throw new BusinessException("Space " + spaceId + " is not available for reservation (current status: " + space.getStatus() + ")");
-        }
-
-        zoneService.updateSpaceStatus(spaceId, SpaceStatus.RESERVED);
+    public Reservation placeReservation(ReservationConfirmedEvent event) {
+        reservationValidator.validate(event.userId(), event.spaceId(), event.from(), event.until());
 
         Reservation reservation = Reservation.builder()
-                .userId(userId)
-                .spaceId(spaceId)
+                .userId(event.userId())
+                .spaceId(event.spaceId())
                 .status(ReservationStatus.CONFIRMED)
-                .reservedFrom(from)
-                .reservedUntil(until)
+                .reservedFrom(event.from())
+                .reservedUntil(event.until())
                 .createdAt(Instant.now())
                 .build();
 
@@ -67,8 +66,6 @@ public class ReservationService {
 
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
-
-        zoneService.updateSpaceStatus(reservation.getSpaceId(), SpaceStatus.FREE);
 
         eventPublisher.publishEvent(new ReservationCancelledEvent(
                 reservation.getReservationId(),
@@ -96,40 +93,35 @@ public class ReservationService {
     }
 
     @Transactional
-    public Reservation updateReservation(Long reservationId, UUID newSpaceId, Instant newFrom, Instant newUntil){
-        Reservation oldReservation = getReservation(reservationId);
-        Long userId = oldReservation.getUserId();
-        Instant originalCreatedAt = oldReservation.getCreatedAt();
+    public Reservation updateReservation(Long reservationId, UUID newSpaceId, Instant newFrom, Instant newUntil) {
+        Reservation reservation = getReservation(reservationId);
+        Long userId = reservation.getUserId();
 
         reservationValidator.validate(userId, newSpaceId, newFrom, newUntil);
 
-        cancelReservation(reservationId);
-        ParkingSpace space = zoneService.getSpaceById(newSpaceId);
-        if (space.getStatus() != SpaceStatus.FREE){
-            throw new BusinessException("Space " + newSpaceId + " is not available");
-        }
-
-        Reservation updatedReservation= Reservation.builder().reservationId(reservationId)
-                .userId(userId)
-                .spaceId(newSpaceId)
-                .status(ReservationStatus.CONFIRMED)
-                .reservedFrom(newFrom)
-                .reservedUntil(newUntil)
-                .createdAt(originalCreatedAt)
-                .build();
-
-        updatedReservation = reservationRepository.save(updatedReservation);
-
-        eventPublisher.publishEvent(new ReservationPlacedEvent(
-                updatedReservation.getReservationId(),
-                updatedReservation.getUserId(),
-                updatedReservation.getSpaceId(),
-                updatedReservation.getReservedFrom(),
-                updatedReservation.getReservedUntil(),
-                updatedReservation.getCreatedAt()
+        eventPublisher.publishEvent(new ReservationCancelledEvent(
+                reservation.getReservationId(),
+                userId,
+                reservation.getSpaceId(),
+                Instant.now()
         ));
 
-        return updatedReservation;
+        reservation.setSpaceId(newSpaceId);
+        reservation.setReservedFrom(newFrom);
+        reservation.setReservedUntil(newUntil);
+        reservation.setStatus(ReservationStatus.PENDING);
+
+        reservation = reservationRepository.save(reservation);
+
+        eventPublisher.publishEvent(new CheckSpaceIsFreeEvent(
+                newSpaceId,
+                newFrom,
+                newUntil,
+                userId,
+                Instant.now()
+        ));
+
+        return reservation;
     }
 
     public Reservation getReservation(Long reservationId) {
