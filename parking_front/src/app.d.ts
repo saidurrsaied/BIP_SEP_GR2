@@ -3,7 +3,10 @@
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			// Pas 'User' aan naar de structuur die jouw /api/user teruggeeft
+			user: { uid: string; email: string; } | null;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
