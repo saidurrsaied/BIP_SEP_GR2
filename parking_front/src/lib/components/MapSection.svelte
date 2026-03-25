@@ -25,7 +25,7 @@
   <!-- Mock Map Background -->
   <div
     class="absolute inset-0 bg-cover bg-center"
-    style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDCclsHXePmbkf7BAQor8IhQqLytrRPMw7bn-bqjKy4J3CKb5mxOx_LvmORfjzG4x4rsNoCABBrHaAk_d1ZeWoOdu5Wp2RR0cWjt4SVeDO7N4Tqm3skA_D1jpOON8qIt7cBXSMh6V8Oil1JP0l5Geb8d5UT2iQcEmEv29Ah1Am7IKja9PoxM8jhZd5XNFlOj6dRhqm01HETgf7aOc4QFOO0eF8HeL-oDqMeMuqX4Aa_SljEwfu-omiKKo_Ok0hj1Aqm00nNTAbdMwxp')"
+    style="background-image: url('/img/Dortmund.jpeg')"
   >
     <!-- Overlay for depth -->
     <div class="absolute inset-0 bg-primary/5"></div>
