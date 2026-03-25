@@ -80,7 +80,7 @@ public class ReservationService {
 
     @Transactional
     public void completeReservation(Long reservationId) {
-        Reservation reservation = getReservation(reservationId)
+        Reservation reservation = getReservation(reservationId);
         reservation.setStatus(ReservationStatus.COMPLETED);
         reservationRepository.save(reservation);
 
@@ -112,7 +112,7 @@ public class ReservationService {
         Reservation updatedReservation= Reservation.builder().reservationId(reservationId)
                 .userId(userId)
                 .spaceId(newSpaceId)
-                .status(SpaceStatus.CONFIRMED)
+                .status(ReservationStatus.CONFIRMED)
                 .reservedFrom(newFrom)
                 .reservedUntil(newUntil)
                 .createdAt(originalCreatedAt)

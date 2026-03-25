@@ -50,4 +50,5 @@ public class ReservationController {
     }
 
     public record PlaceReservationRequest(Long userId, UUID spaceId, Instant from, Instant until) {}
+    public record UpdateReservationRequest(UUID spaceId, Instant from, Instant until) {}
 }
