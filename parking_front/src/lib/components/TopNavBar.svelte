@@ -13,7 +13,7 @@
   class="fixed top-0 w-full z-50 bg-slate-50/70 dark:bg-slate-950/70 backdrop-blur-xl shadow-sm h-16 flex items-center justify-between px-6 font-sans text-sm tracking-tight"
 >
   <div class="flex items-center gap-8">
-    <span class="text-xl font-black tracking-tighter text-blue-900 dark:text-blue-50">UrbanFlow</span>
+    <span class="text-xl font-black tracking-tighter text-blue-900 dark:text-blue-50">D-Parking</span>
     <nav class="hidden md:flex items-center gap-6">
       <a
         class="text-blue-900 dark:text-blue-50 font-semibold border-b-2 border-green-500 transition-all"
