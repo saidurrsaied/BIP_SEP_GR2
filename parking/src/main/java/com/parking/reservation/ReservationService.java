@@ -80,9 +80,7 @@ public class ReservationService {
 
     @Transactional
     public void completeReservation(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + reservationId + " not found"));
-
+        Reservation reservation = getReservation(reservationId)
         reservation.setStatus(ReservationStatus.COMPLETED);
         reservationRepository.save(reservation);
 
@@ -97,10 +95,49 @@ public class ReservationService {
         ));
     }
 
+    @Transactional
+    public Reservation updateReservation(Long reservationId, UUID newSpaceId, Instant newFrom, Instant newUntil){
+        Reservation oldReservation = getReservation(reservationId);
+        Long userId = oldReservation.getUserId();
+        Instant originalCreatedAt = oldReservation.getCreatedAt();
+
+        reservationValidator.validate(userId, newSpaceId, newFrom, newUntil);
+
+        cancelReservation(reservationId);
+        ParkingSpace space = zoneService.getSpaceById(newSpaceId);
+        if (space.getStatus() != SpaceStatus.FREE){
+            throw new BusinessException("Space " + newSpaceId + " is not available");
+        }
+
+        Reservation updatedReservation= Reservation.builder().reservationId(reservationId)
+                .userId(userId)
+                .spaceId(newSpaceId)
+                .status(SpaceStatus.CONFIRMED)
+                .reservedFrom(newFrom)
+                .reservedUntil(newUntil)
+                .createdAt(originalCreatedAt)
+                .build();
+
+        updatedReservation = reservationRepository.save(updatedReservation);
+
+        eventPublisher.publishEvent(new ReservationPlacedEvent(
+                updatedReservation.getReservationId(),
+                updatedReservation.getUserId(),
+                updatedReservation.getSpaceId(),
+                updatedReservation.getReservedFrom(),
+                updatedReservation.getReservedUntil(),
+                updatedReservation.getCreatedAt()
+        ));
+
+        return updatedReservation;
+    }
+
     public Reservation getReservation(Long reservationId) {
         return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation with id " + reservationId + " not found"));
     }
+
+
 
     public List<Reservation> getReservationsForUser(Long userId) {
         return reservationRepository.findByUserId(userId);
