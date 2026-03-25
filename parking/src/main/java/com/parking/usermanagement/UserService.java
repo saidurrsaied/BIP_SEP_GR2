@@ -3,6 +3,7 @@ package com.parking.usermanagement;
 import com.parking.exception.BusinessException;
 import com.parking.exception.ConflictException;
 import com.parking.exception.ResourceNotFoundException;
+import com.parking.usermanagement.internal.JwtTokenProvider;
 import com.parking.usermanagement.internal.PasswordHasher;
 import com.parking.usermanagement.internal.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordHasher passwordHasher;
+    private final JwtTokenProvider jwtTokenProvider;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -45,13 +47,15 @@ public class UserService {
         return user;
     }
 
-    public String authenticateUser(String email, String password) {
-        // Simple authentication check. JWT token generation is implied.
-        return userRepository.findByEmail(email)
-                .filter(user -> passwordHasher.matches(password, user.getHashedPassword()))
-                .map(user -> "dummy-jwt-token-for-" + user.getUserId())
+    public AuthResponse authenticateUser(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .filter(u -> passwordHasher.matches(password, u.getHashedPassword()))
                 .orElseThrow(() -> new BusinessException("Invalid email or password"));
+        String token = jwtTokenProvider.generateToken(user.getUserId(), user.getEmail(), user.getRole());
+        return new AuthResponse(token, user);
     }
+
+    public record AuthResponse(String token, User user) {}
 
     public User findUserById(Long userId) {
         return userRepository.findById(userId)
