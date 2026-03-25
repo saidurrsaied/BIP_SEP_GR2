@@ -1,5 +1,6 @@
 package com.parking.notification.internal;
 
+import com.parking.usermanagement.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class NotificationProviderClient {
 
     private final JavaMailSender mailSender;
+    private final UserService userService;
 
     @Value("${app.mail.from:noreply@parking.com}")
     private String fromAddress;
@@ -37,14 +39,7 @@ public class NotificationProviderClient {
         }
     }
 
-    public boolean sendSms(Long userId, String message) {
-        // Placeholder for external SMS service API call (e.g. Twilio)
-        log.info("SMS sent to userId={}: {}", userId, message);
-        return true;
-    }
-
     private String resolveEmail(Long userId) {
-        // TODO: Look up the user's email from your user/account module
-        throw new UnsupportedOperationException("Implement user email lookup by userId: " + userId);
+        return userService.findUserById(userId).getEmail();
     }
 }

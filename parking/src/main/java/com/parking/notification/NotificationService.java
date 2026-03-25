@@ -5,6 +5,7 @@ import com.parking.notification.internal.NotificationProviderClient;
 import com.parking.notification.internal.NotificationRecord;
 import com.parking.notification.internal.NotificationRepository;
 import com.parking.reservation.ReservationCancelledEvent;
+import com.parking.reservation.ReservationCompletedEvent;
 import com.parking.reservation.ReservationPlacedEvent;
 import com.parking.zonemanagement.SpaceOccupiedEvent;
 import lombok.RequiredArgsConstructor;
@@ -42,12 +43,19 @@ public class NotificationService {
     }
 
     @ApplicationModuleListener
+    public void onReservationCompleted(ReservationCompletedEvent event) {
+        String message = "Reservation " + event.reservationId() + " has been completed. Your parking session lasted " + event.durationMinutes() + " minutes.";
+        boolean success = notificationProviderClient.sendEmail(event.userId(), "Parking Session Completed", message);
+        saveRecord("ReservationCompletedEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
+    }
+
+    @ApplicationModuleListener
     public void onSpaceOccupied(SpaceOccupiedEvent event) {
-        // Optional: alert users about changing availability
+        // Notify user about successful space occupation
         if (event.userId() != null) {
             String message = "You have successfully occupied space " + event.spaceId();
-            notificationProviderClient.sendSms(event.userId(), message);
-            saveRecord("SpaceOccupiedEvent", event.userId(), "SMS", "SENT");
+            boolean success = notificationProviderClient.sendEmail(event.userId(), "Space Occupied", message);
+            saveRecord("SpaceOccupiedEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
         }
     }
 
