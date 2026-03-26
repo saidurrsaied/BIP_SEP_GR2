@@ -19,6 +19,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
@@ -30,6 +31,31 @@ spring:
           auth: true
           starttls:
             enable: true
+
+  # Redis Configuration for Session Persistence
+  session:
+    store-type: redis
+    redis:
+      namespace: parking-sessions
+      flush-mode: on-save
+
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    timeout: 60000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  # SQL Initialization (optional - for seed data)
+  sql:
+    init:
+      mode: ${SQL_INIT_MODE:never}
+      data-locations: classpath:/db/seed-data.sql
 
 security:
   jwt:
