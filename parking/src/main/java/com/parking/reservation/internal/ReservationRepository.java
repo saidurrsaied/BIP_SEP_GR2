@@ -26,4 +26,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("until") Instant until,
             @Param("blockingStatuses") List<ReservationStatus> blockingStatuses
     );
+
+    @Query("SELECT r FROM Reservation r WHERE r.status = 'PENDING' AND r.reservedUntil < :now")
+    List<Reservation> findExpiredPendingReservations(@Param("now") Instant now);
 }

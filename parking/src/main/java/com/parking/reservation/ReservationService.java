@@ -6,8 +6,10 @@ import com.parking.reservation.internal.ReservationValidator;
 import com.parking.usermanagement.UserService;
 import com.parking.zonemanagement.CheckSpaceIsFreeEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.modulith.events.ApplicationModuleListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -137,5 +140,29 @@ public class ReservationService {
 
     public List<Reservation> getReservationsForUser(Long userId) {
         return reservationRepository.findByUserId(userId);
+    }
+
+    /**
+     * Scheduled task to expire pending reservations that have passed their reserved time
+     * Runs every 5 minutes
+     */
+    @Scheduled(fixedRate = 300000) // 5 minutes
+    @Transactional
+    public void expireOldReservations() {
+        try {
+            Instant now = Instant.now();
+            List<Reservation> expiredReservations = reservationRepository.findExpiredPendingReservations(now);
+
+            if (!expiredReservations.isEmpty()) {
+                log.info("Found {} expired reservations to clean up", expiredReservations.size());
+                for (Reservation reservation : expiredReservations) {
+                    reservation.setStatus(ReservationStatus.EXPIRED);
+                    reservationRepository.save(reservation);
+                    log.debug("Marked reservation {} as EXPIRED", reservation.getReservationId());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing reservation expiration: {}", e.getMessage(), e);
+        }
     }
 }

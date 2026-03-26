@@ -9,6 +9,7 @@ import com.parking.reservation.ReservationCompletedEvent;
 import com.parking.reservation.ReservationPlacedEvent;
 import com.parking.usermanagement.UserRegisteredEvent;
 import com.parking.zonemanagement.SpaceOccupiedEvent;
+import com.parking.zonemanagement.ZoneCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,13 @@ public class NotificationService {
             boolean success = notificationProviderClient.sendEmail(event.userEmail(), "Space Occupied", message);
             saveRecord("SpaceOccupiedEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
         }
+    }
+
+    @ApplicationModuleListener
+    public void onZoneCreated(ZoneCreatedEvent event) {
+        // Log zone creation for administrative notification
+        // In production, this could send email to admin or create in-app notification
+        saveRecord("ZoneCreatedEvent", null, "INTERNAL", "LOGGED");
     }
 
     private void saveRecord(String eventType, Long userId, String channel, String status) {
