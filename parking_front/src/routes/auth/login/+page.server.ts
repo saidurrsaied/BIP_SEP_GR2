@@ -19,12 +19,15 @@ export const actions = {
 			body: JSON.stringify({ email, password })
 		});
 
+
 		if (!res.ok) {
 			return fail(401, { error: 'Inloggen mislukt. Check je gegevens.' });
 		}
 
 		// VANG DE JSESSIONID UIT DE SPRING BOOT RESPONSE
 		const setCookieHeader = res.headers.get('set-cookie');
+		console.log("=== LOGIN DEBUG ===");
+		console.log("Krijgen we een cookie van Spring Boot?:", setCookieHeader);
 
 		if (setCookieHeader) {
 			// Zoek de JSESSIONID in de header string
