@@ -4,21 +4,28 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "bil_billing_items")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class BillingItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long itemId;
+    private Long id;
+
+    private String description;
+
+    private long amountCents; // in cents
 
     @Enumerated(EnumType.STRING)
     private BillingItemType type;
 
-    private String description;
-    private long amountCents;
-    private Integer durationMinutes;
+    private int durationMinutes; // optional
+
+    // Compatibility method
+    public long getAmount() {
+        return amountCents;
+    }
 }
