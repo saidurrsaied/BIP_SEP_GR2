@@ -1,13 +1,9 @@
 package com.parking.reservation;
 
-import com.parking.exception.BusinessException;
 import com.parking.exception.ResourceNotFoundException;
 import com.parking.reservation.internal.ReservationRepository;
 import com.parking.reservation.internal.ReservationValidator;
 import com.parking.zonemanagement.CheckSpaceIsFreeEvent;
-import com.parking.zonemanagement.ParkingSpace;
-import com.parking.zonemanagement.SpaceStatus;
-import com.parking.zonemanagement.ZoneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.modulith.events.ApplicationModuleListener;

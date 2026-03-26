@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -90,13 +91,13 @@ public class ZoneService {
     }
 
     @ApplicationModuleListener
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateSpaceToReserved(ReservationConfirmedEvent event) {
         updateSpaceStatus(event.spaceId(),  SpaceStatus.RESERVED);
     }
 
     @ApplicationModuleListener
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateSpaceToFree(ReservationCancelledEvent event) {
         updateSpaceStatus(event.spaceId(), SpaceStatus.FREE);
     }
