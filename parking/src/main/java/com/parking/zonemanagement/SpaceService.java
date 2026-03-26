@@ -19,7 +19,7 @@ public class SpaceService {
     @Transactional
     @ApplicationModuleListener
     public void onCheckSpaceIsFreeEvent(CheckSpaceIsFreeEvent event) {
-        var space = spaceRepository.findByIdForUpdate(event.spaceId());
+        var space = spaceRepository.findBySpaceId(event.spaceId());
         if (space.isPresent()) {
             eventPublisher.publishEvent(new ReservationConfirmedEvent(
                     space.get().getSpaceId(),
