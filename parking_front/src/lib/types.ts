@@ -11,7 +11,7 @@ export interface PricingPolicy {
 }
 
 export interface ParkingZone {
-	id: number;           // Gewijzigd van zoneId naar id
+	zoneId: number;           // Gewijzigd van zoneId naar id
 	name: string;
 	address: string;
 	city: string;
