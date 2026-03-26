@@ -57,51 +57,40 @@
       Found {zones.reduce((acc, z) => acc + countAvailable(z), 0)} available spots in your area
     </p>
 
-    <!-- Quick Filters -->
     <div class="flex flex-wrap gap-2 mt-4">
-      <button
-        class="px-3 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold label-sm tracking-wide flex items-center gap-1"
-      >
+      <button class="px-3 py-1.5 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold label-sm tracking-wide flex items-center gap-1">
         <span class="material-symbols-outlined text-sm">bolt</span>
         CHARGING
       </button>
-      <button
-        class="px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface-variant text-xs font-bold label-sm tracking-wide"
-      >
+      <button class="px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface-variant text-xs font-bold label-sm tracking-wide">
         DISTANCE
       </button>
-      <button
-        class="px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface-variant text-xs font-bold label-sm tracking-wide"
-      >
+      <button class="px-3 py-1.5 rounded-full bg-surface-container-lowest border border-outline-variant text-on-surface-variant text-xs font-bold label-sm tracking-wide">
         PRICE
       </button>
     </div>
   </div>
 
-  <!-- Scrollable List -->
   <div class="flex-1 overflow-y-auto px-6 pb-24 space-y-4">
     {#if isLoading}
       <div class="flex justify-center items-center h-full">
         <div class="text-on-surface-variant text-sm">Loading spaces...</div>
       </div>
-    {:else if zones.length === 0}
+    {:else if !zones || zones.length === 0}
       <div class="flex justify-center items-center h-full">
         <div class="text-on-surface-variant text-sm">No zones available</div>
       </div>
     {:else}
       {#each zones as mapData (mapData.zone.id)}
         <div class="space-y-3">
-          <!-- Zone Header -->
+
           <div class="px-2">
             <h2 class="font-bold text-primary text-sm">{mapData.zone.name}</h2>
             <p class="text-on-surface-variant text-xs">{mapData.zone.address}</p>
           </div>
 
-          <!-- Spaces in Zone -->
           {#each mapData.spaces as space (space.id)}
-            <div
-              class="bg-surface-container-lowest p-4 rounded-xl shadow-sm hover:bg-surface-container-highest transition-all cursor-pointer group"
-            >
+            <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm hover:bg-surface-container-highest transition-all cursor-pointer group">
               <div class="flex justify-between items-start mb-2">
                 <h3 class="font-bold text-primary group-hover:text-secondary transition-colors">
                   {mapData.zone.name} - {space.spaceNumber}
@@ -116,21 +105,19 @@
                   <span>Level {space.level} • Zone {mapData.zone.id}</span>
                 </div>
                 <div class="flex items-center gap-2 text-on-surface-variant text-xs">
-                  <span class="material-symbols-outlined text-sm"
-                    >{space.hasChargingPoint === 'TRUE' ? 'bolt' : 'remove'}</span
-                  >
+                  <span class="material-symbols-outlined text-sm">
+                    {space.hasChargingPoint === 'TRUE' ? 'bolt' : 'remove'}
+                  </span>
                   <span class={space.hasChargingPoint === 'TRUE' ? 'text-secondary font-semibold' : ''}>
                     {space.hasChargingPoint === 'TRUE'
-                      ? `${(mapData.zone.pricingPolicy.chargingRatePerKwhCents / 100).toFixed(2)}/kWh Charging`
+                      ? `€${formatPrice(mapData.zone.pricingPolicy?.chargingRatePerKwhCents || 0)}/kWh Charging`
                       : 'No Charging Available'}
                   </span>
                 </div>
                 <div class="flex justify-between items-center pt-2 mt-2 border-t border-surface-container">
-                  <span class="text-sm font-black text-primary"
-                    >${formatPrice(mapData.zone.pricingPolicy.hourlyRateCents)}<span
-                      class="font-normal text-xs text-on-surface-variant">/hr</span
-                    ></span
-                  >
+                  <span class="text-sm font-black text-primary">
+                    €{formatPrice(mapData.zone.pricingPolicy?.hourlyRateCents || 0)}<span class="font-normal text-xs text-on-surface-variant">/hr</span>
+                  </span>
                   <button class="text-xs font-bold text-secondary uppercase tracking-widest flex items-center gap-1">
                     DETAILS
                     <span class="material-symbols-outlined text-xs">arrow_forward</span>
