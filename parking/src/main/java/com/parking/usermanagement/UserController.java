@@ -16,6 +16,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -35,28 +36,26 @@ public class UserController {
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest httpRequest
     ) {
-        // 1. Check of wachtwoord en email kloppen
+        // Authenticate user with email and password
         UserService.AuthResponse response = userService.authenticateUser(request.email(), request.password());
 
-        // 2. Maak het token aan voor Spring Security
+        // Create authentication token for Spring Security
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 request.email(),
                 null,
-                // Let op: pas dit aan naar de rol die bij jouw project hoort (bijv. ROLE_CITIZEN)
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        // 3. Maak de sessie aan (genereert de JSESSIONID cookie)
+        // Create session (generates JSESSIONID cookie)
         HttpSession session = httpRequest.getSession(true);
 
-        // 4. DE FIX: Sla de inlog-context op in de sessie-doos!
+        // Store authentication context in session
         session.setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext()
         );
 
-        // 5. Stuur response terug naar SvelteKit
         return ResponseEntity.ok(response);
     }
 
@@ -70,16 +69,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserRole(id));
     }
 
-
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            // Geef ook errors netjes als JSON terug
-            return ResponseEntity.status(401).body(java.util.Map.of("error", "Niet ingelogd"));
+            return ResponseEntity.status(401).body(Map.of("error", "User is not logged in"));
         }
 
-        // Verpak het e-mailadres in een netjes JSON object!
-        return ResponseEntity.ok(java.util.Map.of("email", authentication.getPrincipal()));
+        return ResponseEntity.ok(Map.of("email", authentication.getPrincipal()));
     }
 
     public record RegisterRequest(

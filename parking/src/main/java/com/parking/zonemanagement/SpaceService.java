@@ -27,6 +27,7 @@ public class SpaceService {
                     event.from(),
                     event.until(),
                     event.userId(),
+                    event.userEmail(),
                     Instant.now()
             ));
         }

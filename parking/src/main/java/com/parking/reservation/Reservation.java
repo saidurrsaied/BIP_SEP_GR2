@@ -18,6 +18,7 @@ public class Reservation {
     private Long reservationId;
 
     private Long userId; // Plain ID reference
+    private String userEmail; // User email for notifications (denormalized)
     private UUID spaceId; // Plain ID reference
 
     @Enumerated(EnumType.STRING)

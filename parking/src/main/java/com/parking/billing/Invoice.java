@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
+@Table(name = "bil_invoices")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,18 +18,23 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long invoiceId;
 
-    private Long userId;
+    private Long userId; // Reference to user (ID only, no entity)
+
+    private Long reservationId; // Reference to reservation (ID only, no entity)
 
     private Long totalAmountCents;
 
-    private String currency;
+    @Builder.Default
+    private String currency = "EUR";
 
     private Instant paidAt;
 
     @Enumerated(EnumType.STRING)
-    private InvoiceStatus status;
+    @Builder.Default
+    private InvoiceStatus status = InvoiceStatus.PENDING;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "invoice_id")
     private List<BillingItem> items;
 
     private Instant createdAt;

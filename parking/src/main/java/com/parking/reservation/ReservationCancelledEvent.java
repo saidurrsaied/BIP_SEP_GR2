@@ -6,6 +6,7 @@ import java.util.UUID;
 public record ReservationCancelledEvent(
     Long reservationId,
     Long userId,
+    String userEmail,
     UUID spaceId,
     Instant occurredAt
 ) {}

@@ -6,6 +6,7 @@ import java.util.UUID;
 public record ReservationCompletedEvent(
     Long reservationId,
     Long userId,
+    String userEmail,
     UUID spaceId,
     long durationMinutes,
     Instant occurredAt

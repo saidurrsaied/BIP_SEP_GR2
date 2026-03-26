@@ -14,17 +14,16 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update   # creates billing tables automatically
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: parking.dortmund@gmail.com
-    password: aogu ypal xixj mgin
-
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:noreply@parking.com}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -32,19 +31,20 @@ spring:
           starttls:
             enable: true
 
-# Security Configuration
 security:
   jwt:
     secret: ${JWT_SECRET:placeholder-secret-key-at-least-32-characters-long}
     expiration-ms: 3600000
 
-# External Service Base URLs
 external-services:
   mapping: ${MAPPING_SERVICE_URL:http://mapping-service/api}
   payment: ${PAYMENT_SERVICE_URL:http://payment-service/api}
   notification: ${NOTIFICATION_SERVICE_URL:http://notification-service/api}
 
-#email
 app:
   mail:
-    from: parking.dortmund@gmail.com
+    from: ${MAIL_FROM:noreply@parking.com}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+  payment:
+    mock-mode: ${PAYMENT_MOCK_MODE:true}

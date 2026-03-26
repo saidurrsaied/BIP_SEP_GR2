@@ -8,5 +8,6 @@ public record ReservationConfirmedEvent(
         Instant from,
         Instant until,
         Long userId,
+        String userEmail,
         Instant occurredAt
 ) {}

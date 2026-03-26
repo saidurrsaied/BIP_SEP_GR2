@@ -3,6 +3,7 @@ package com.parking.reservation;
 import com.parking.exception.ResourceNotFoundException;
 import com.parking.reservation.internal.ReservationRepository;
 import com.parking.reservation.internal.ReservationValidator;
+import com.parking.usermanagement.UserService;
 import com.parking.zonemanagement.CheckSpaceIsFreeEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,9 +24,11 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationValidator reservationValidator;
     private final ApplicationEventPublisher eventPublisher;
+    private final UserService userService;
 
     public void checkReservationSpace(Long userId, UUID spaceId, Instant from, Instant until) {
-        eventPublisher.publishEvent(new CheckSpaceIsFreeEvent(spaceId, from, until, userId, Instant.now()));
+        String userEmail = userService.findUserById(userId).getEmail();
+        eventPublisher.publishEvent(new CheckSpaceIsFreeEvent(spaceId, from, until, userId, userEmail, Instant.now()));
     }
 
     @ApplicationModuleListener
@@ -35,6 +38,7 @@ public class ReservationService {
 
         Reservation reservation = Reservation.builder()
                 .userId(event.userId())
+                .userEmail(event.userEmail())
                 .spaceId(event.spaceId())
                 .status(ReservationStatus.CONFIRMED)
                 .reservedFrom(event.from())
@@ -47,6 +51,7 @@ public class ReservationService {
         eventPublisher.publishEvent(new ReservationPlacedEvent(
                 reservation.getReservationId(),
                 reservation.getUserId(),
+                reservation.getUserEmail(),
                 reservation.getSpaceId(),
                 reservation.getReservedFrom(),
                 reservation.getReservedUntil(),
@@ -67,6 +72,7 @@ public class ReservationService {
         eventPublisher.publishEvent(new ReservationCancelledEvent(
                 reservation.getReservationId(),
                 reservation.getUserId(),
+                reservation.getUserEmail(),
                 reservation.getSpaceId(),
                 Instant.now()
         ));
@@ -83,6 +89,7 @@ public class ReservationService {
         eventPublisher.publishEvent(new ReservationCompletedEvent(
                 reservation.getReservationId(),
                 reservation.getUserId(),
+                reservation.getUserEmail(),
                 reservation.getSpaceId(),
                 durationMinutes,
                 Instant.now()
@@ -99,6 +106,7 @@ public class ReservationService {
         eventPublisher.publishEvent(new ReservationCancelledEvent(
                 reservation.getReservationId(),
                 userId,
+                reservation.getUserEmail(),
                 reservation.getSpaceId(),
                 Instant.now()
         ));
@@ -115,6 +123,7 @@ public class ReservationService {
                 newFrom,
                 newUntil,
                 userId,
+                reservation.getUserEmail(),
                 Instant.now()
         ));
 

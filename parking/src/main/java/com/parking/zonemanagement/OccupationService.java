@@ -1,6 +1,7 @@
 package com.parking.zonemanagement;
 
 import com.parking.exception.BusinessException;
+import com.parking.usermanagement.UserService;
 import com.parking.zonemanagement.internal.OccupationRecord;
 import com.parking.zonemanagement.internal.OccupationRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,13 @@ public class OccupationService {
 
     private final OccupationRepository occupationRepository;
     private final ZoneService zoneService;
+    private final UserService userService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-        public void markSpaceOccupied(UUID spaceId, Long userId) {
+    public void markSpaceOccupied(UUID spaceId, Long userId) {
         ParkingSpace space = zoneService.getSpaceById(spaceId);
+        String userEmail = userService.findUserById(userId).getEmail();
 
         zoneService.updateSpaceStatus(spaceId, SpaceStatus.OCCUPIED);
 
@@ -39,6 +42,7 @@ public class OccupationService {
                 spaceId,
                 space.getZone().getZoneId(),
                 userId,
+                userEmail,
                 space.getChargingPoint(),
                 Instant.now()
         ));
@@ -55,12 +59,14 @@ public class OccupationService {
         zoneService.updateSpaceStatus(spaceId, SpaceStatus.FREE);
 
         ParkingSpace space = zoneService.getSpaceById(spaceId);
+        String userEmail = record.getUserId() != null ? userService.findUserById(record.getUserId()).getEmail() : null;
 
         long durationMinutes = Duration.between(record.getStartTime(), record.getEndTime()).toMinutes();
 
         eventPublisher.publishEvent(new SpaceVacatedEvent(
                 spaceId,
                 record.getUserId(),
+                userEmail,
                 record.getHasChargingPoint(),
                 durationMinutes,
                 zoneService.getPricingPolicy(spaceId),

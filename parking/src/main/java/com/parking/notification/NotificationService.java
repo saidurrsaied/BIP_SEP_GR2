@@ -7,6 +7,7 @@ import com.parking.notification.internal.NotificationRepository;
 import com.parking.reservation.ReservationCancelledEvent;
 import com.parking.reservation.ReservationCompletedEvent;
 import com.parking.reservation.ReservationPlacedEvent;
+import com.parking.usermanagement.UserRegisteredEvent;
 import com.parking.zonemanagement.SpaceOccupiedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.modulith.events.ApplicationModuleListener;
@@ -22,39 +23,46 @@ public class NotificationService {
     private final NotificationProviderClient notificationProviderClient;
 
     @ApplicationModuleListener
+    public void onUserRegistered(UserRegisteredEvent event) {
+        String message = "Welcome to Parking Management System! Your account has been created with email: " + event.email();
+        boolean success = notificationProviderClient.sendEmail(event.email(), "Welcome to Parking Management", message);
+        saveRecord("UserRegisteredEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
+    }
+
+    @ApplicationModuleListener
     public void onReservationPlaced(ReservationPlacedEvent event) {
         String message = "Reservation confirmed for space " + event.spaceId() + " from " + event.from() + " to " + event.until();
-        boolean success = notificationProviderClient.sendEmail(event.userId(), "Reservation Confirmed", message);
+        boolean success = notificationProviderClient.sendEmail(event.userEmail(), "Reservation Confirmed", message);
         saveRecord("ReservationPlacedEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
     }
 
     @ApplicationModuleListener
     public void onReservationCancelled(ReservationCancelledEvent event) {
         String message = "Reservation " + event.reservationId() + " has been cancelled.";
-        boolean success = notificationProviderClient.sendEmail(event.userId(), "Reservation Cancelled", message);
+        boolean success = notificationProviderClient.sendEmail(event.userEmail(), "Reservation Cancelled", message);
         saveRecord("ReservationCancelledEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
     }
 
     @ApplicationModuleListener
     public void onPaymentProcessed(PaymentProcessedEvent event) {
-        String message = "Payment of " + event.totalAmountCents() + " cents processed for invoice " + event.invoiceId();
-        boolean success = notificationProviderClient.sendEmail(event.userId(), "Payment Receipt", message);
+        String message = "Payment of " + (event.totalAmountCents() / 100.0) + " EUR processed for invoice " + event.invoiceId();
+        boolean success = notificationProviderClient.sendEmail(event.userEmail(), "Payment Receipt", message);
         saveRecord("PaymentProcessedEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
     }
 
     @ApplicationModuleListener
     public void onReservationCompleted(ReservationCompletedEvent event) {
         String message = "Reservation " + event.reservationId() + " has been completed. Your parking session lasted " + event.durationMinutes() + " minutes.";
-        boolean success = notificationProviderClient.sendEmail(event.userId(), "Parking Session Completed", message);
+        boolean success = notificationProviderClient.sendEmail(event.userEmail(), "Parking Session Completed", message);
         saveRecord("ReservationCompletedEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
     }
 
     @ApplicationModuleListener
     public void onSpaceOccupied(SpaceOccupiedEvent event) {
         // Notify user about successful space occupation
-        if (event.userId() != null) {
+        if (event.userId() != null && event.userEmail() != null) {
             String message = "You have successfully occupied space " + event.spaceId();
-            boolean success = notificationProviderClient.sendEmail(event.userId(), "Space Occupied", message);
+            boolean success = notificationProviderClient.sendEmail(event.userEmail(), "Space Occupied", message);
             saveRecord("SpaceOccupiedEvent", event.userId(), "EMAIL", success ? "SENT" : "FAILED");
         }
     }
