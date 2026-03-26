@@ -1,5 +1,8 @@
 package com.parking.billing;
 
 public enum InvoiceStatus {
-    PENDING, PAID, FAILED, REFUNDED
+    CREATED,
+    PENDING,
+    PAID,
+    FAILED
 }

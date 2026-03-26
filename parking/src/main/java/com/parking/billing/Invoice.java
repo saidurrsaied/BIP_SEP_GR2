@@ -2,32 +2,49 @@ package com.parking.billing;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "bil_invoices")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Invoice {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long invoiceId;
+    private Long id;
 
-    private Long userId; // Plain ID
-    private Long reservationId; // Plain ID
+    private Long userId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "invoiceId")
-    private List<BillingItem> items;
+    private Long totalAmountCents;  // always in cents
+
+    private String currency;
+
+    private Instant paidAt;
 
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
 
-    private long totalAmountCents;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<BillingItem> items;
+
+    private Long reservationId;
     private Instant createdAt;
-    private Instant paidAt;
+
+    // Compatibility methods
+    public Long getInvoiceId() {
+        return id;
+    }
+
+    public Long getTotalAmountCents() {
+        return totalAmountCents;
+    }
+
+    public void setTotalAmount(long totalAmountCents) {
+        this.totalAmountCents = totalAmountCents;
+    }
 }
