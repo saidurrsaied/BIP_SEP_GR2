@@ -41,7 +41,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     ports:
-      - "5432:5432"
+      - "5434:5432"  # Changed from 5432 to 5434 to avoid conflict with local postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
