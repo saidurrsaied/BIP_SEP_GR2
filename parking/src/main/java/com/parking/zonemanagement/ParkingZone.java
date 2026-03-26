@@ -1,6 +1,5 @@
 package com.parking.zonemanagement;
 
-import com.parking.zonemanagement.PricingPolicy;
 import jakarta.persistence.*;
 import lombok.*;
 

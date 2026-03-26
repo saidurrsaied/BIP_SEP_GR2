@@ -1,18 +1,18 @@
 package com.parking.billing;
 
 import com.parking.billing.internal.InvoiceRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BillingService {
 
     private final InvoiceRepository invoiceRepository;
-
-    public BillingService(InvoiceRepository invoiceRepository) {
-        this.invoiceRepository = invoiceRepository;
-    }
 
     public Invoice createInvoice(Invoice invoice) {
 
@@ -22,7 +22,7 @@ public class BillingService {
                 .mapToLong(BillingItem::getAmount) // ✅ long arithmetic
                 .sum();
 
-        invoice.setTotalAmount(total);
+        invoice.setTotalAmountCents(total);
         invoice.setStatus(InvoiceStatus.CREATED);
 
         return invoiceRepository.save(invoice);
@@ -43,7 +43,7 @@ public class BillingService {
         Invoice invoice = invoiceRepository.findById(event.invoiceId())
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
 
-        invoice.setTotalAmount(event.totalAmountCents()); // ✅ long
+        invoice.setTotalAmountCents(event.totalAmountCents()); // ✅ long
         invoice.setPaidAt(event.occurredAt());
         invoice.setStatus(InvoiceStatus.PAID);
 

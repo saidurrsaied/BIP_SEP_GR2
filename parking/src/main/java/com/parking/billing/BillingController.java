@@ -2,17 +2,16 @@ package com.parking.billing;
 
 import org.springframework.web.bind.annotation.*;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/billing")
+@RequiredArgsConstructor
 public class BillingController {
 
     private final BillingService billingService;
-
-    public BillingController(BillingService billingService) {
-        this.billingService = billingService;
-    }
 
     @PostMapping("/invoice")
     public Invoice createInvoice(@RequestBody Invoice invoice) {
