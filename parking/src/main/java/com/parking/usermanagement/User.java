@@ -27,7 +27,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;
+    
+    @Column(unique = true, nullable = false)
+    private String numberplate;
 
     @Column(nullable = false)
     private Instant createdAt;
+    
 }
