@@ -65,7 +65,7 @@ const payload = {
             console.log(`✅ [POST] /reservations - Status: ${res.status} ${res.statusText}`);
             try {
                 // Probeer het als JSON te loggen voor leesbaarheid, anders als tekst
-                console.log("📦 Response Body:", JSON.parse(responseText));
+                console.log("� Response Body:", JSON.parse(responseText));
             } catch {
                 console.log("📄 Response Body (text):", responseText);
             }
