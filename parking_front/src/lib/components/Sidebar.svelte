@@ -2,56 +2,40 @@
   import type { ParkingSpace, ParkingZone, MapData } from '$lib/types';
 
   interface Props {
-    zones: any[]; // tijdelijk op any (of je platte type) om typescript gezeur te voorkomen
+    zones: any[]; // Gebruikt de platte data structuur van de backend
     isLoading: boolean;
   }
 
   let { zones = [], isLoading = false }: Props = $props();
 
-  // Format price for display
+  // Formatteer centen naar Euro weergave
   function formatPrice(cents: number): string {
     return (cents / 100).toFixed(2);
   }
 
-  // Count available spaces (met veilige check voor lege arrays!)
+  // Tel beschikbare plaatsen in een zone
   function countAvailable(zone: any): number {
     return (zone.spaces || []).filter((s: any) => s.status === 'FREE').length;
   }
 
-  // Get space status badge color
+  // Kleuren voor de status badges
   function getStatusBadge(status: string): { bg: string; text: string; label: string } {
     switch (status) {
       case 'FREE':
-        return {
-          bg: 'bg-secondary-container',
-          text: 'text-on-secondary-container',
-          label: 'FREE',
-        };
+        return { bg: 'bg-secondary-container', text: 'text-on-secondary-container', label: 'FREE' };
       case 'RESERVED':
-        return {
-          bg: 'bg-primary-fixed',
-          text: 'text-on-primary-fixed-variant',
-          label: 'RESERVED',
-        };
+        return { bg: 'bg-primary-fixed', text: 'text-on-primary-fixed-variant', label: 'RESERVED' };
       case 'OCCUPIED':
-        return {
-          bg: 'bg-error-container',
-          text: 'text-on-error-container',
-          label: 'OCCUPIED',
-        };
+        return { bg: 'bg-error-container', text: 'text-on-error-container', label: 'OCCUPIED' };
       default:
-        return {
-          bg: 'bg-surface-container',
-          text: 'text-on-surface',
-          label: status,
-        };
+        return { bg: 'bg-surface-container', text: 'text-on-surface', label: status };
     }
   }
 </script>
 
 <aside class="w-96 bg-surface-container-low h-full flex flex-col z-20 shadow-xl overflow-hidden">
   <div class="p-6 pb-4">
-    <h1 class="text-headline-sm font-bold tracking-tight mb-2">Nearby Spaces</h1>
+    <h1 class="text-headline-sm font-bold tracking-tight mb-2">Nearby Zones</h1>
     <p class="text-on-surface-variant text-sm body-md">
       Found {zones.reduce((acc, z) => acc + countAvailable(z), 0)} available spots in your area
     </p>
@@ -73,68 +57,73 @@
   <div class="flex-1 overflow-y-auto px-6 pb-24 space-y-4">
     {#if isLoading}
       <div class="flex justify-center items-center h-full">
-        <div class="text-on-surface-variant text-sm">Loading spaces...</div>
+        <div class="text-on-surface-variant text-sm">Loading parking data...</div>
       </div>
     {:else if !zones || zones.length === 0}
       <div class="flex justify-center items-center h-full">
-        <div class="text-on-surface-variant text-sm">No zones available</div>
+        <div class="text-on-surface-variant text-sm">No zones found.</div>
       </div>
     {:else}
       {#each zones as mapData (mapData.zoneId)}
-        <div class="space-y-3">
-
-        <!-- <div class="px-2 flex flex-col gap-2 mb-2">
+        <div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-outline-variant/30 hover:shadow-md transition-all group">
+          
+          <div class="flex justify-between items-start mb-3">
             <div>
-              <h2 class="font-bold text-primary text-sm">{mapData.name}</h2>
-              <p class="text-on-surface-variant text-xs">{mapData.address || 'No address'}</p>
+              <h2 class="font-bold text-primary text-lg leading-tight group-hover:text-secondary transition-colors">
+                {mapData.name}
+              </h2>
+              <p class="text-on-surface-variant text-xs flex items-center gap-1 mt-1">
+                <span class="material-symbols-outlined text-sm">location_on</span>
+                {mapData.address || 'Address unknown'}
+              </p>
             </div>
             
-          </div> -->
-
-          {#each (mapData.spaces || []) as space (space.id || space.spaceId)}
-            <div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm hover:bg-surface-container-highest transition-all cursor-pointer group">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-primary group-hover:text-secondary transition-colors">
-                  {mapData.name} - {space.spaceNumber}
-                </h3>
-                <span class="{getStatusBadge(space.status).bg} {getStatusBadge(space.status).text} px-2.5 py-1 rounded-full text-[10px] font-bold label-sm">
-                  {getStatusBadge(space.status).label}
+            <div class="flex flex-col items-end gap-2">
+              {#if mapData.spaces && mapData.spaces.length > 0}
+                <span class="bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded-full text-[10px] font-black">
+                  {countAvailable(mapData)} / {mapData.spaces.length} FREE
                 </span>
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-center gap-2 text-on-surface-variant text-xs">
-                  <span class="material-symbols-outlined text-sm">location_on</span>
-                  <span>Level {space.level} • Zone {mapData.zoneId}</span>
-                </div>
-                <div class="flex items-center gap-2 text-on-surface-variant text-xs">
-                  <span class="material-symbols-outlined text-sm">
-                    {space.hasChargingPoint === 'TRUE' ? 'bolt' : 'remove'}
-                  </span>
-                  <span class={space.hasChargingPoint === 'TRUE' ? 'text-secondary font-semibold' : ''}>
-                    {space.hasChargingPoint === 'TRUE'
-                      ? `€${formatPrice(mapData.pricingPolicy?.chargingRatePerKwhCents || 0)}/kWh Charging`
-                      : 'No Charging Available'}
-                  </span>
-                </div>
-                <div class="flex justify-between items-center pt-2 mt-2 border-t border-surface-container">
-                  <span class="text-sm font-black text-primary">
-                    €{formatPrice(mapData.pricingPolicy?.hourlyRateCents || 0)}<span class="font-normal text-xs text-on-surface-variant">/hr</span>
-                  </span>
-                  <button class="text-xs font-bold text-secondary uppercase tracking-widest flex items-center gap-1">
-                    DETAILS
-                    <span class="material-symbols-outlined text-xs">arrow_forward</span>
-                  </button>
-              <a 
-                href="/admin/zones/{mapData.zoneId}/edit" 
-                class="px-3 py-1.5 bg-secondary hover:bg-secondary-container text-on-secondary hover:text-on-secondary-container text-[10px] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-colors shadow-sm"
-              >
-                <span class="material-symbols-outlined text-[14px]">edit</span>
-                Edit Zone
-              </a>
-                </div>
-              </div>
+              {:else}
+                <span class="bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full text-[10px] font-bold">
+                  NO SPACES
+                </span>
+              {/if}
             </div>
-          {/each}
+          </div>
+
+          <div class="space-y-1.5 mb-4">
+            <div class="flex items-center gap-2 text-xs">
+              <span class="material-symbols-outlined text-sm text-on-surface-variant">payments</span>
+              <span class="font-bold text-primary">€{formatPrice(mapData.pricingPolicy?.hourlyRateCents || 0)}</span>
+              <span class="text-on-surface-variant">/ hour</span>
+            </div>
+            
+            {#if mapData.spaces && mapData.spaces.some(s => s.hasChargingPoint === 'TRUE' || s.chargingPoint === 'TRUE')}
+              <div class="flex items-center gap-2 text-xs">
+                <span class="material-symbols-outlined text-sm text-secondary">bolt</span>
+                <span class="text-secondary font-bold">EV Charging Available</span>
+              </div>
+            {/if}
+          </div>
+
+          <div class="flex gap-2 pt-3 border-t border-surface-container-highest">
+            <a 
+              href="/zones/{mapData.zoneId}" 
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 bg-surface-container hover:bg-surface-container-high text-on-surface text-[11px] font-bold uppercase tracking-wider rounded-xl transition-colors"
+            >
+              <span class="material-symbols-outlined text-sm">visibility</span>
+              Details
+            </a>
+            
+            <a 
+              href="/admin/zones/{mapData.zoneId}/edit" 
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 bg-secondary text-on-secondary hover:bg-secondary-container hover:text-on-secondary-container text-[11px] font-bold uppercase tracking-wider rounded-xl transition-colors shadow-sm"
+            >
+              <span class="material-symbols-outlined text-sm">edit</span>
+              Edit Zone
+            </a>
+          </div>
+
         </div>
       {/each}
     {/if}
