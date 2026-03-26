@@ -23,7 +23,7 @@ public class UserService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public User registerUser(String email, String password, UserRole role) {
+    public User registerUser(String email, String password, String numberplate, UserRole role) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ConflictException("An account with email '" + email + "' already exists");
         }
@@ -31,6 +31,7 @@ public class UserService {
         User user = User.builder()
                 .email(email)
                 .hashedPassword(passwordHasher.hash(password))
+                .numberplate(numberplate)
                 .role(role)
                 .createdAt(Instant.now())
                 .build();
@@ -40,6 +41,7 @@ public class UserService {
         eventPublisher.publishEvent(new UserRegisteredEvent(
                 user.getUserId(),
                 user.getEmail(),
+                user.getNumberplate(),
                 user.getRole(),
                 user.getCreatedAt()
         ));

@@ -27,7 +27,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest request) {
         UserRole role = request.role() != null ? request.role() : UserRole.CITIZEN;
-        return ResponseEntity.ok(userService.registerUser(request.email(), request.password(), role));
+        return ResponseEntity.ok(userService.registerUser(request.email(), request.password(), request.numberplate(), role));
     }
 
     @PostMapping("/login")
@@ -90,6 +90,9 @@ public class UserController {
             @NotBlank(message = "Password is required")
             @Size(min = 8, message = "Password must be at least 8 characters")
             String password,
+
+            @NotBlank(message = "Numberplate is required")
+            String numberplate,
 
             UserRole role
     ) {}
