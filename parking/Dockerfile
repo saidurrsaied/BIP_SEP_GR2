@@ -2,26 +2,26 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-RUN echo "=== Pre-copy: inhoud van werkdirectory ===" && ls -la && echo "==="
+RUN echo "=== Pre-build: current directory contents ===" && ls -la && echo "==="
 
-# Kopieer de pom.xml (vervangt build.gradle en settings.gradle)
+# Copy pom.xml (replaces build.gradle and settings.gradle)
 COPY pom.xml ./
 
-RUN echo "=== Na COPY van build config ===" && ls -la && echo "==="
+RUN echo "=== After COPY build config ===" && ls -la && echo "==="
 
-# Download dependencies zodat ze in de Docker cache blijven (vervangt gradle dependencies)
+# Download dependencies so they remain in the Docker cache (replaces gradle dependencies)
 RUN mvn dependency:go-offline -B || true
 
-# Kopieer de broncode
+# Copy the source code
 COPY src ./src
 
-RUN echo "=== Na COPY van src ===" && ls -la src || echo "⚠️ Geen src gevonden" && echo "==="
+RUN echo "=== After COPY of src ===" && ls -la src || echo "⚠️ No src directory found" && echo "==="
 
-# Bouw de applicatie en sla de tests over (vervangt gradle bootJar -x test)
+# Build the application and skip tests (replaces gradle bootJar -x test)
 RUN mvn clean package -DskipTests
 
-RUN echo "=== Controle: build output ===" && \
-    ls -la target || echo "⚠️  Geen target map gevonden"
+RUN echo "=== Check: build output ===" && \
+    ls -la target || echo "⚠️  No target directory found"
 
 # --- Runtime stage ---
 FROM eclipse-temurin:21-jdk-alpine
@@ -29,7 +29,7 @@ WORKDIR /app
 
 RUN apk add --no-cache curl bash
 
-# Maven zet de gebouwde .jar standaard in de 'target' map (in plaats van build/libs/)
+# Maven places the built .jar by default in the 'target' directory (instead of build/libs/)
 COPY --from=build /build/target/*.jar spring-boot-application.jar
 
 EXPOSE 3000
