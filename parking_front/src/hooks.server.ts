@@ -61,7 +61,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         "default-src 'none'",
         
         // Sta de Tailwind CDN toe
-        `script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com`,
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com`,
         
         // Sta Google Fonts bestanden toe
         "font-src 'self' https://fonts.gstatic.com",
@@ -81,7 +81,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         
         "object-src 'none'",
         "media-src 'none'",
-        "worker-src 'none'",
+        "worker-src 'self' blob:",
         "base-uri 'self'"
     ].join('; ');
 
