@@ -15,6 +15,7 @@
     try {
       isLoading = true;
       const response = await apiGet<MapData[]>('/zones/map');
+      console.log(response);
 
       if (response.data) {
         zones = response.data;
