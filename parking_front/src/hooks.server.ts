@@ -28,6 +28,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 		try {
 			// HIER ZAT DE FOUT: Het moest /api/users/me zijn (met een 's')!
 			const res = await event.fetch(`${BACKEND_URL}/api/users/me`);
+<<<<<<< HEAD
+=======
+			console.log(res);
+>>>>>>> 44d4c1c2c1a1de34d492fcda1fa1991bd5c8e66b
 			if (res.ok) {
 				event.locals.user = await res.json();
 			} else {
@@ -49,6 +53,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const isProtectedRoute = !nonProtectedRoutes.some((route) => event.url.pathname.startsWith(route));
 
 	if (isProtectedRoute && !event.locals.user) {
+<<<<<<< HEAD
+=======
+		console.error(`Toegang geweigerd tot ${event.url.pathname}. Redirect naar /auth/login`);
+>>>>>>> 44d4c1c2c1a1de34d492fcda1fa1991bd5c8e66b
 		throw redirect(302, '/auth/login');
 	}
 
