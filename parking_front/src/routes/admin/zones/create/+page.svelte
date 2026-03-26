@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
 
-	// Svelte 5 manier om formulier-statussen uit de server.ts op te vangen
+	// Svelte 5 way to capture form statuses from server.ts
 	let { form } = $props<{ form: ActionData }>();
 	let isLoading = $state(false);
 </script>
@@ -11,8 +11,8 @@
 	<div class="bg-surface-container-lowest p-8 rounded-2xl shadow-xl w-full max-w-2xl border border-surface-container-highest">
 
 		<div class="mb-8">
-			<h1 class="text-2xl font-bold text-primary mb-2">Nieuwe Zone Aanmaken</h1>
-			<p class="text-on-surface-variant text-sm">Voeg een nieuwe parkeerzone toe (via SvelteKit Actions).</p>
+			<h1 class="text-2xl font-bold text-primary mb-2">Create New Zone</h1>
+			<p class="text-on-surface-variant text-sm">Add a new parking zone (via SvelteKit Actions).</p>
 		</div>
 
 		{#if form?.error}
@@ -30,24 +30,24 @@
 		<form method="POST" use:enhance={() => {
       isLoading = true;
       return async ({ update }) => {
-        await update({ reset: form?.success }); // Reset formulier alleen als het gelukt is
+        await update({ reset: form?.success }); // Reset form only if successful
         isLoading = false;
       };
     }} class="space-y-6">
 
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div>
-					<label for="name" class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wide">Zone Naam</label>
+					<label for="name" class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wide">Zone Name</label>
 					<input id="name" name="name" type="text" required
 					       class="w-full bg-surface-container-low border border-outline-variant text-on-surface rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none" />
 				</div>
 				<div>
-					<label for="city" class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wide">Stad</label>
+					<label for="city" class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wide">City</label>
 					<input id="city" name="city" type="text" value="Dortmund" required
 					       class="w-full bg-surface-container-low border border-outline-variant text-on-surface rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none" />
 				</div>
 				<div class="md:col-span-2">
-					<label for="address" class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wide">Adres</label>
+					<label for="address" class="block text-xs font-bold text-on-surface-variant mb-1 uppercase tracking-wide">Address</label>
 					<input id="address" name="address" type="text" required
 					       class="w-full bg-surface-container-low border border-outline-variant text-on-surface rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary outline-none" />
 				</div>
@@ -85,7 +85,7 @@
 					{:else}
 						<span class="material-symbols-outlined text-sm">save</span>
 					{/if}
-					Opslaan
+					Save
 				</button>
 			</div>
 

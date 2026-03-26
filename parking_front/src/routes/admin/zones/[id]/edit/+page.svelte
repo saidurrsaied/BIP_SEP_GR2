@@ -8,7 +8,7 @@
   let isUpdating = $state(false);
   let isDeleting = $state(false);
 
-  // Zet de centen uit de database weer om naar euro's voor in de input velden
+  // Convert cents from the database back to euros for the input fields
   let currentHourlyRate = (zone.pricingPolicy?.hourlyRateCents || 0) / 100;
   let currentChargingRate = (zone.pricingPolicy?.chargingRatePerKwhCents || 0) / 100;
 </script>
@@ -39,7 +39,7 @@
     <form method="POST" action="?/update" use:enhance={() => {
       isUpdating = true;
       return async ({ update }) => {
-        await update({ reset: false }); // Niet resetten, we willen de data blijven zien
+        await update({ reset: false }); // Don't reset, we want to keep seeing the data
         isUpdating = false;
       };
     }} class="space-y-6">
@@ -111,7 +111,7 @@
         </div>
 
         <form method="POST" action="?/delete" use:enhance={() => {
-          // Extra beveiliging: een JavaScript pop-up voordat het formulier verstuurd wordt
+          // Extra security: a JavaScript pop-up before the form is submitted
           const confirmed = confirm(`Are you sure you want to delete ${zone.name}? This cannot be undone.`);
           if (!confirmed) return ({ update }) => update();
 

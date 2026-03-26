@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
     
-    // SVELTE 5 MANIER:
+    // Svelte 5 Runes - reactive component props:
     let { form } = $props();
 </script>
 

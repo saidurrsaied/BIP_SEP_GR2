@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
     
-    // SVELTE 5 MANIER:
+    // Svelte 5 Runes - reactive component props
     let { form } = $props();
 </script>
 
@@ -13,7 +13,7 @@
                 Create your account
             </h2>
             <p class="mt-2 text-center text-sm text-gray-600">
-                Of <a href="/auth/login" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">Login if you already have a accounnt</a>
+                or <a href="/auth/login" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">login if you already have an account</a>
             </p>
         </div>
 
