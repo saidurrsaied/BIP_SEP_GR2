@@ -84,5 +84,44 @@ export const actions = {
 
         // Als verwijderen gelukt is, direct terugsturen naar het overzicht!
         throw redirect(303, '/admin/zones');
-    }
+    },
+
+
+    addSpace: async ({ request, params, fetch }) => {
+        const data = await request.formData();
+        const { id } = params;
+
+        const spaceNumber = data.get('spaceNumber')?.toString();
+        const level = data.get('level')?.toString();
+        const chargingPoint = data.get('chargingPoint')?.toString();
+
+        if (!spaceNumber || !level) {
+            return fail(400, { error: 'Please provide a space number and level.' });
+        }
+
+        try {
+            // Let op de URL: we gebruiken het endpoint uit je ZoneController
+            const res = await fetch(`${BACKEND_URL}/zones/${id}/spaces`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Jouw record: AddSpaceRequest(ChargingPoint chargingPoint, String level, String spaceNumber)
+                body: JSON.stringify({ 
+                    spaceNumber, 
+                    level, 
+                    chargingPoint 
+                })
+            });
+
+            console.error("WHUUUUT", res)
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                return fail(res.status, { error: `Failed to add space: ${errorText}` });
+            }
+
+            return { success: true, message: `Space ${spaceNumber} added successfully!` };
+        } catch (error) {
+            return fail(500, { error: 'Could not reach the server.' });
+        }
+    },
 } satisfies Actions;

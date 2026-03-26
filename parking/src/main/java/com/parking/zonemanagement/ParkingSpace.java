@@ -1,5 +1,6 @@
 package com.parking.zonemanagement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // <-- VERGEET DEZE IMPORT NIET!
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class ParkingSpace {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID spaceId;
 
+    @JsonIgnore // <-- DIT IS DE MAGIC FIX DIE DE CIRKEL DOORBREEKT
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zone_id",  nullable = false)
     private ParkingZone zone;
