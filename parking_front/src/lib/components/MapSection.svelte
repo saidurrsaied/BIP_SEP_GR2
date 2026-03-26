@@ -33,7 +33,7 @@
 
 
   <!-- Map Pins -->
-  {#each zones as mapData, idx (mapData.zone.id)}
+  {#each zones as mapData, idx (mapData.zone.zoneId)}
     {#each mapData.spaces.slice(0, 1) as space (space.id)}
       <div
         class="absolute"

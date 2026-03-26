@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,7 +18,7 @@ public class MapOverlayService {
     private final ZoneRepository zoneRepository;
 
     @Transactional(readOnly = true)
-    public MapData getEnrichedMapData(UUID zoneId) {
+    public MapData getEnrichedMapData(Long zoneId) {
         return zoneRepository.findById(zoneId)
                 .map(this::mapToData)
                 .orElseThrow(() -> new ResourceNotFoundException("Zone with id " + zoneId + " not found"));
@@ -42,7 +41,7 @@ public class MapOverlayService {
                         .map(s -> SpaceData.builder()
                                 .spaceId(s.getSpaceId())
                                 .status(s.getStatus())
-                                .chargingPoint(s.getChargingPoint())
+                                .hasChargingPoint(s.getHasChargingPoint())
                                 .build())
                         .collect(Collectors.toList()))
                 .build();
@@ -51,7 +50,7 @@ public class MapOverlayService {
     @Getter
     @Builder
     public static class MapData {
-        private UUID zoneId;
+        private Long zoneId;
         private String name;
         private double latitude;
         private double longitude;
@@ -61,8 +60,8 @@ public class MapOverlayService {
     @Getter
     @Builder
     public static class SpaceData {
-        private UUID spaceId;
+        private Long spaceId;
         private SpaceStatus status;
-        private ChargingPoint chargingPoint;
+        private HasChargingPoint hasChargingPoint;
     }
 }

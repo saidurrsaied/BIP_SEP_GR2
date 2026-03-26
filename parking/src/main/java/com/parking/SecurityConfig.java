@@ -29,10 +29,7 @@ public class SecurityConfig {
                 .cors(cors -> {})
 
                 // 2. CSRF: We gebruiken een cookie die SvelteKit kan lezen
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/api/users/login", "/api/users/register")
-                )
+                .csrf(csrf -> csrf.disable())
 
                 // 3. Geen standaard inlogschermen of basic auth
                 .formLogin(form -> form.disable())
