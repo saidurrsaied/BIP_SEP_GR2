@@ -8,12 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -27,7 +27,6 @@ public class ZoneService {
     @Transactional
     public ParkingZone createZone(String name, String address, String city, double lat, double lng, PricingPolicy pricingPolicy) {
         ParkingZone zone = ParkingZone.builder()
-                .zoneId(UUID.randomUUID())
                 .name(name)
                 .address(address)
                 .city(city)
@@ -78,7 +77,6 @@ public class ZoneService {
                 .orElseThrow(() -> new RuntimeException("Zone not found"));
 
         ParkingSpace space = ParkingSpace.builder()
-                .spaceId(UUID.randomUUID())
                 .zone(zone)
                 .status(SpaceStatus.FREE)
                 .chargingPoint(chargingPoint)
@@ -93,11 +91,13 @@ public class ZoneService {
     }
 
     @ApplicationModuleListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateSpaceToReserved(ReservationConfirmedEvent event) {
         updateSpaceStatus(event.spaceId(),  SpaceStatus.RESERVED);
     }
 
     @ApplicationModuleListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateSpaceToFree(ReservationCancelledEvent event) {
         updateSpaceStatus(event.spaceId(), SpaceStatus.FREE);
     }
@@ -121,7 +121,7 @@ public class ZoneService {
     }
 
     public List<ParkingSpace> getAvailableSpaces(UUID zoneId) {
-        return spaceRepository.findByZoneId(zoneId).stream()
+        return spaceRepository.findByZoneZoneId(zoneId).stream()
                 .filter(s -> s.getStatus() == SpaceStatus.FREE)
                 .toList();
     }

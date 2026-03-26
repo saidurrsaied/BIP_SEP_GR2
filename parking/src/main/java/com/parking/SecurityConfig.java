@@ -1,4 +1,4 @@
-package com.parking.config; // Pas dit aan naar jouw package
+package com.parking;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,17 +1,14 @@
 package com.parking.reservation;
 
-import com.parking.exception.BusinessException;
 import com.parking.exception.ResourceNotFoundException;
 import com.parking.reservation.internal.ReservationRepository;
 import com.parking.reservation.internal.ReservationValidator;
 import com.parking.zonemanagement.CheckSpaceIsFreeEvent;
-import com.parking.zonemanagement.ParkingSpace;
-import com.parking.zonemanagement.SpaceStatus;
-import com.parking.zonemanagement.ZoneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -32,7 +29,7 @@ public class ReservationService {
     }
 
     @ApplicationModuleListener
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Reservation placeReservation(ReservationConfirmedEvent event) {
         reservationValidator.validate(event.userId(), event.spaceId(), event.from(), event.until());
 

@@ -60,10 +60,10 @@ public class OccupationService {
 
         eventPublisher.publishEvent(new SpaceVacatedEvent(
                 spaceId,
-                space.getZone().getZoneId(),
                 record.getUserId(),
                 record.getHasChargingPoint(),
                 durationMinutes,
+                zoneService.getPricingPolicy(spaceId),
                 Instant.now()
         ));
 

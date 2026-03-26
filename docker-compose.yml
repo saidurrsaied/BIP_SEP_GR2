@@ -4,11 +4,10 @@ services:
       context: ./parking
       dockerfile: Dockerfile
     container_name: springboot-backend
+    image: parking-backend:latest
     ports:
       - "8080:8080"
       - "5005:5005"
-    volumes:
-      - ./backend:/home/gradle/src/app:z
     networks:
       - app-network
     depends_on: 
@@ -19,6 +18,7 @@ services:
       context: ./parking_front
       dockerfile: Dockerfile
     container_name: sveltekit-frontend
+    image: parking-frontend:latest
     ports:
       - "5173:5173"
     volumes:
