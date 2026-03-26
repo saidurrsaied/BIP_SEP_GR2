@@ -1,41 +1,62 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 
-const BACKEND_URL = "http://backend:8080";
+// Backend URL for server-side requests (Docker internal network)
+const BACKEND_URL = process.env.BACKEND_HOST ? `http://${process.env.BACKEND_HOST}:${process.env.BACKEND_PORT || 8080}` : 'http://backend:8080';
 
-export const actions = {
-    default: async ({ request, fetch }) => {
-        const data = await request.formData();
-        const email = data.get('email')?.toString();
-        const password = data.get('password')?.toString();
-        const numberplate = data.get('numberplate')?.toString(); // 1. Get the value
+export const actions: Actions = {
+  default: async ({ request, cookies }) => {
+    const data = await request.formData();
+    const email = data.get('email')?.toString();
+    const password = data.get('password')?.toString();
+    const numberplate = data.get('numberplate')?.toString();
 
-        // 2. Add validation for the numberplate
-        if (!email || !password || !numberplate || password.length < 8) {
-            return fail(400, { error: 'Please fill in all fields. Password must be at least 8 characters.' });
-        }
-
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/users/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // 3. Include numberplate in the body
-                body: JSON.stringify({ email, password, numberplate }) 
-            });
-
-            if (!res.ok) {
-                const errorMessage = await res.text();
-                // Tip: If your backend returns a JSON error, you might need JSON.parse(errorMessage).message
-                return fail(res.status, {
-                    error: errorMessage || 'Signup failed.'
-                });
-            }
-
-        } catch (error) {
-            console.error('Signup fetch error:', error);
-            return fail(500, { error: 'Cannot connect to the server.' });
-        }
-
-        throw redirect(303, '/auth/login');
+    // Validate all required fields
+    if (!email || !password || !numberplate) {
+      return fail(400, { error: 'Please fill in all fields.' });
     }
+
+    if (password.length < 8) {
+      return fail(400, { error: 'Password must be at least 8 characters.' });
+    }
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, numberplate, role: 'CITIZEN' }),
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Signup failed:', errorText);
+        return fail(response.status, {
+          error: errorText || 'Signup registration failed.'
+        });
+      }
+
+      const result = await response.json();
+
+      // Store JWT token if provided
+      if (result.token) {
+        cookies.set('jwt_token', result.token, {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 60 * 60 * 24 * 7
+        });
+      }
+
+      // Redirect to login page after successful signup
+      throw redirect(302, '/auth/login');
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('redirect')) {
+        throw error;
+      }
+      console.error('Signup fetch error:', error);
+      return fail(500, { error: 'Cannot connect to the server. Please try again.' });
+    }
+  }
 } satisfies Actions;
