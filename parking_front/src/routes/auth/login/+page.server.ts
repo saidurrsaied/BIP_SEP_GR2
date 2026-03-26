@@ -9,10 +9,9 @@ export const actions = {
 		const password = data.get('password')?.toString();
 
 		if (!email || !password) {
-			return fail(400, { error: 'Vul e-mail en wachtwoord in.' });
+			return fail(400, { error: 'Fill in a email and password.' });
 		}
 
-		// Stuur login naar Spring Boot
 		const res = await fetch(`${BACKEND_URL}/api/users/login`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -21,19 +20,16 @@ export const actions = {
 
 
 		if (!res.ok) {
-			return fail(401, { error: 'Inloggen mislukt. Check je gegevens.' });
+			return fail(401, { error: 'Login failed. Check your credentials.' });
 		}
 
-		// VANG DE JSESSIONID UIT DE SPRING BOOT RESPONSE
 		const setCookieHeader = res.headers.get('set-cookie');
 		console.log("=== LOGIN DEBUG ===");
-		console.log("Krijgen we een cookie van Spring Boot?:", setCookieHeader);
+		console.log("Do we get a cookie from Spring Boot?:", setCookieHeader);
 
 		if (setCookieHeader) {
-			// Zoek de JSESSIONID in de header string
 			const match = setCookieHeader.match(/JSESSIONID=([^;]+)/);
 			if (match) {
-				// Sla hem op in de SvelteKit cookies
 				cookies.set('JSESSIONID', match[1], {
 					path: '/',
 					httpOnly: true,
