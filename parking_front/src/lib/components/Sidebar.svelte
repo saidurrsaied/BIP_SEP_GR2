@@ -83,9 +83,21 @@
       {#each zones as mapData (mapData.zoneId)}
         <div class="space-y-3">
 
-          <div class="px-2">
-            <h2 class="font-bold text-primary text-sm">{mapData.name}</h2>
-            <p class="text-on-surface-variant text-xs">{mapData.address || 'No address'}</p>
+        <div class="px-2 flex flex-col gap-2 mb-2">
+            <div>
+              <h2 class="font-bold text-primary text-sm">{mapData.name}</h2>
+              <p class="text-on-surface-variant text-xs">{mapData.address || 'No address'}</p>
+            </div>
+            
+            <div class="flex items-center gap-2 mt-1">
+              <a 
+                href="/admin/zones/{mapData.zoneId}/edit" 
+                class="px-3 py-1.5 bg-secondary hover:bg-secondary-container text-on-secondary hover:text-on-secondary-container text-[10px] font-bold uppercase tracking-wider rounded-md flex items-center gap-1 transition-colors shadow-sm"
+              >
+                <span class="material-symbols-outlined text-[14px]">edit</span>
+                Edit Zone
+              </a>
+            </div>
           </div>
 
           {#each (mapData.spaces || []) as space (space.id || space.spaceId)}
