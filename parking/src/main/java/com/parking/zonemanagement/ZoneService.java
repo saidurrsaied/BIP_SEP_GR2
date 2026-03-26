@@ -1,5 +1,6 @@
 package com.parking.zonemanagement;
 
+import com.parking.exception.ResourceNotFoundException;
 import com.parking.reservation.ReservationCancelledEvent;
 import com.parking.reservation.ReservationConfirmedEvent;
 import com.parking.zonemanagement.internal.SpaceRepository;
@@ -73,18 +74,23 @@ public class ZoneService {
 
     @Transactional
     public ParkingSpace addSpaceToZone(UUID zoneId, ChargingPoint chargingPoint, String level, String spaceNumber) {
+        // 1. Zoek de zone (Let op: UUID!)
         ParkingZone zone = zoneRepository.findById(zoneId)
-                .orElseThrow(() -> new RuntimeException("Zone not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Zone with id " + zoneId + " not found"));
 
+        // 2. Bouw de space EN koppel de zone direct
         ParkingSpace space = ParkingSpace.builder()
-                .zone(zone)
+                .zone(zone) // <--- CRUCIAAL: Koppel de volledige zone entiteit!
                 .status(SpaceStatus.FREE)
                 .chargingPoint(chargingPoint)
                 .level(level)
                 .spaceNumber(spaceNumber)
                 .build();
 
+        // 3. Voeg toe aan de lijst van de zone (voor bi-directionele consistentie)
         zone.getSpaces().add(space);
+        
+        // 4. Sla de zone op (omdat we CascadeType.ALL hebben, wordt de space ook opgeslagen)
         zoneRepository.save(zone);
 
         return space;

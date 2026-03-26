@@ -1,94 +1,109 @@
 <script lang="ts">
   import TopNavBar from '$lib/components/TopNavBar.svelte';
   import BottomNavBar from '$lib/components/BottomNavBar.svelte';
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
+
+  // GEFIXED: Check of de chargingPoint NIET 'FALSE' is
+  const chargingZones = $derived(
+    (data.zones || []).filter(zone => 
+      zone.spaces && zone.spaces.some((s: any) => s.chargingPoint !== 'FALSE')
+    )
+  );
+
+  function formatPrice(cents: number): string {
+    return (cents / 100).toFixed(2);
+  }
+
+  // GEFIXED: Tel alle beschikbare laders (alles wat niet 'FALSE' is en status 'FREE' heeft)
+  function getAvailableLaders(zone: any): number {
+    return (zone.spaces || []).filter((s: any) => 
+      s.chargingPoint !== 'FALSE' && s.status === 'FREE'
+    ).length;
+  }
+
+  // Helper om te kijken of een zone snelladers heeft
+  function hasFastCharger(zone: any): boolean {
+    return (zone.spaces || []).some((s: any) => s.chargingPoint === 'FAST_CHARGER');
+  }
 </script>
 
 <TopNavBar />
 
 <main class="pt-16 pb-20 min-h-screen bg-surface">
   <div class="max-w-2xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-on-surface mb-6">EV Charging Stations</h1>
-
-    <!-- Charging Stations Grid -->
-    <div class="grid gap-4 md:grid-cols-2">
-      <!-- Charging Station Card 1 -->
-      <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-start justify-between mb-4">
-          <div>
-            <h3 class="text-xl font-bold text-primary">Central Hub — 50kW</h3>
-            <p class="text-on-surface-variant text-sm">Fast DC Charging</p>
-          </div>
-          <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold">
-            AVAILABLE
-          </span>
-        </div>
-
-        <div class="space-y-3 mb-4">
-          <div class="flex items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-lg">location_on</span>
-            <span class="text-sm">123 Main St, Dortmund</span>
-          </div>
-          <div class="flex items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-lg">flash_on</span>
-            <span class="text-sm">50kW DC • 3 available</span>
-          </div>
-          <div class="flex items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-lg">access_time</span>
-            <span class="text-sm">~30 min for full charge</span>
-          </div>
-        </div>
-
-        <div class="border-t border-surface-container pt-4">
-          <p class="text-lg font-bold text-primary mb-2">
-            €0.45<span class="text-sm font-normal text-on-surface-variant">/min</span>
-          </p>
-          <button
-            class="w-full bg-secondary text-on-secondary py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-          >
-            Reserve Charger
-          </button>
-        </div>
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-12 h-12 bg-secondary-container rounded-2xl flex items-center justify-center">
+        <span class="material-symbols-outlined text-on-secondary-container text-2xl">bolt</span>
       </div>
-
-      <!-- Charging Station Card 2 -->
-      <div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex items-start justify-between mb-4">
-          <div>
-            <h3 class="text-xl font-bold text-primary">Green Street — 22kW</h3>
-            <p class="text-on-surface-variant text-sm">Level 2 Charging</p>
-          </div>
-          <span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold">
-            AVAILABLE
-          </span>
-        </div>
-
-        <div class="space-y-3 mb-4">
-          <div class="flex items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-lg">location_on</span>
-            <span class="text-sm">456 Green Ave, Dortmund</span>
-          </div>
-          <div class="flex items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-lg">flash_on</span>
-            <span class="text-sm">22kW AC • 5 available</span>
-          </div>
-          <div class="flex items-center gap-2 text-on-surface-variant">
-            <span class="material-symbols-outlined text-lg">access_time</span>
-            <span class="text-sm">~2 hours for full charge</span>
-          </div>
-        </div>
-
-        <div class="border-t border-surface-container pt-4">
-          <p class="text-lg font-bold text-primary mb-2">
-            €0.25<span class="text-sm font-normal text-on-surface-variant">/min</span>
-          </p>
-          <button
-            class="w-full bg-secondary text-on-secondary py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity"
-          >
-            Reserve Charger
-          </button>
-        </div>
+      <div>
+        <h1 class="text-3xl font-bold text-on-surface">EV Charging</h1>
+        <p class="text-on-surface-variant text-sm">Find fast and slow chargers near you</p>
       </div>
     </div>
+
+    {#if chargingZones.length === 0}
+      <div class="text-center py-20 bg-surface-container-lowest rounded-3xl border border-dashed border-outline-variant">
+        <span class="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-4">ev_charger</span>
+        <p class="text-on-surface-variant font-medium">No charging zones found in the database.</p>
+        <p class="text-xs text-on-surface-variant/60 mt-1">Make sure you added spaces with 'SLOW_CHARGER' or 'FAST_CHARGER'.</p>
+      </div>
+    {:else}
+      <div class="grid gap-6 md:grid-cols-2">
+        {#each chargingZones as zone (zone.zoneId)}
+          {@const availableCount = getAvailableLaders(zone)}
+          {@const fast = hasFastCharger(zone)}
+          
+          <div class="bg-surface-container-lowest p-6 rounded-3xl shadow-sm border border-surface-container-high hover:shadow-md transition-all group">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h3 class="text-xl font-bold text-primary group-hover:text-secondary transition-colors">{zone.name}</h3>
+                <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mt-1">
+                  ID: {zone.zoneId.slice(0, 8)}
+                </p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider {availableCount > 0 ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'}">
+                {availableCount > 0 ? 'AVAILABLE' : 'FULLY OCCUPIED'}
+              </span>
+            </div>
+
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center gap-3 text-on-surface-variant">
+                <span class="material-symbols-outlined text-lg">location_on</span>
+                <span class="text-sm font-medium">{zone.address || 'Unknown address'}, {zone.city}</span>
+              </div>
+              
+              <div class="flex items-center gap-3 text-on-surface-variant">
+                <span class="material-symbols-outlined text-lg {fast ? 'text-amber-500' : 'text-secondary'}">
+                  {fast ? 'bolt_speed' : 'bolt'}
+                </span>
+                <span class="text-sm">
+                  <strong class="text-on-surface">{availableCount}</strong> chargers free 
+                  <span class="text-xs opacity-60">({fast ? 'Fast DC' : 'Slow AC'})</span>
+                </span>
+              </div>
+
+              <div class="flex items-center gap-3 text-on-surface-variant">
+                <span class="material-symbols-outlined text-lg">payments</span>
+                <span class="text-sm">
+                  <strong class="text-primary">€{formatPrice(zone.pricingPolicy?.chargingRatePerKwhCents || 0)}</strong> per kWh
+                </span>
+              </div>
+            </div>
+
+            <div class="border-t border-surface-container-high pt-5">
+              <a
+                href="/zones/{zone.zoneId}/reserve"
+                class="block w-full text-center bg-primary text-on-primary py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-sm"
+              >
+                Reserve / View Details
+              </a>
+            </div>
+          </div>
+        {/each}
+      </div>
+    {/if}
   </div>
 </main>
 
@@ -96,6 +111,6 @@
 
 <style>
   :global(.material-symbols-outlined) {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
 </style>
