@@ -2,7 +2,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { Handle, HandleFetch } from '@sveltejs/kit';
 
-// 1. Gebruik de Docker interne netwerk URL voor server-side fetches!
+// Gebruik de Docker interne netwerk URL voor server-side fetches
 const BACKEND_URL = "http://backend:8080";
 
 // Helper functie om code schoon te houden
@@ -11,7 +11,6 @@ function clearSessionCookies(cookies: any) {
 		path: '/',
 		secure: false, // Zet op true zodra je HTTPS/productie gebruikt
 		sameSite: 'lax' as const
-		// We laten 'domain' bewust weg, zodat het feilloos werkt op zowel localhost als .localtest.me
 	};
 
 	cookies.delete('JSESSIONID', cookieOptions);
@@ -20,19 +19,22 @@ function clearSessionCookies(cookies: any) {
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const sessionId = event.cookies.get('JSESSIONID');
+	console.log("SessionID", sessionId)
 
 	// --- AUTHENTICATIE CHECK ---
 	if (!sessionId) {
 		event.locals.user = null;
 	} else {
 		try {
-			// Let op: check of je Spring Boot endpoint inderdaad /api/user is (of /api/users/me)
-			const res = await event.fetch(`${BACKEND_URL}/api/user`);
-
+			// HIER ZAT DE FOUT: Het moest /api/users/me zijn (met een 's')!
+			const res = await event.fetch(`${BACKEND_URL}/api/users/me`);
+			console.log(res);
 			if (res.ok) {
 				event.locals.user = await res.json();
 			} else {
-				console.warn('Hooks: Ongeldige sessie, gebruiker niet gevonden op backend.');
+				// Nu vertelt hij je in de terminal PRECIES waarom hij faalt
+				const errorBody = await res.text();
+				console.warn(`Hooks: Ongeldige sessie (Status: ${res.status}). Reden: ${errorBody}`);
 				event.locals.user = null;
 				clearSessionCookies(event.cookies);
 			}
@@ -48,6 +50,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const isProtectedRoute = !nonProtectedRoutes.some((route) => event.url.pathname.startsWith(route));
 
 	if (isProtectedRoute && !event.locals.user) {
+		console.error(`Toegang geweigerd tot ${event.url.pathname}. Redirect naar /auth/login`);
 		throw redirect(302, '/auth/login');
 	}
 
@@ -58,32 +61,32 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 
 	const csp = [
-        "default-src 'none'",
-        
-        // Sta de Tailwind CDN toe
-        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com`,
-        
-        // Sta Google Fonts bestanden toe
-        "font-src 'self' https://fonts.gstatic.com",
-        
-        // Sta de frontend toe om API calls te doen naar localhost:8080 (vanuit je browser) en backend:8080 (vanuit Docker)
-        `connect-src 'self' http://localhost:8080 ${BACKEND_URL}`,
-        
-        "frame-ancestors 'self'",
-        
-        // Sta plaatjes van Google (voor profielfoto's) toe
-        "img-src 'self' data: https://*.googleusercontent.com http://*.googleusercontent.com",
-        
-        "form-action 'self'",
-        
-        // Sta Google Fonts CSS toe
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        
-        "object-src 'none'",
-        "media-src 'none'",
-        "worker-src 'self' blob:",
-        "base-uri 'self'"
-    ].join('; ');
+		"default-src 'none'",
+
+		// Tailwind CDN verwijderd, je gebruikt app.css via Vite nu!
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+
+		// Sta Google Fonts bestanden toe
+		"font-src 'self' https://fonts.gstatic.com",
+
+		// Sta de frontend toe om API calls te doen
+		`connect-src 'self' http://localhost:8080 ${BACKEND_URL}`,
+
+		"frame-ancestors 'self'",
+
+		// Sta plaatjes van Google (voor profielfoto's) toe
+		"img-src 'self' data: https://*.googleusercontent.com http://*.googleusercontent.com",
+
+		"form-action 'self'",
+
+		// Sta Google Fonts CSS toe
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+
+		"object-src 'none'",
+		"media-src 'none'",
+		"worker-src 'self' blob:",
+		"base-uri 'self'"
+	].join('; ');
 
 	response.headers.set('Content-Security-Policy', csp);
 
