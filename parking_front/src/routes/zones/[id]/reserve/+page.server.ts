@@ -1,10 +1,14 @@
-// src/routes/zones/[id]/reserve/+page.server.ts
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 const BACKEND_URL = "http://backend:8080/api";
 
-export const load: PageServerLoad = async ({ fetch, params }) => {
+export const load: PageServerLoad = async ({ fetch, params, locals }) => {
+    // Check ook in de load of de user wel mag reserveren
+    if (!locals.user) {
+        throw redirect(302, '/login?callback=/zones/' + params.id + '/reserve');
+    }
+
     const res = await fetch(`${BACKEND_URL}/zones/${params.id}`);
 
     if (!res.ok) {
@@ -12,14 +16,20 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
     }
 
     const zone = await res.json();
-    // Alleen plekken tonen die echt vrij zijn
     const freeSpaces = (zone.spaces || []).filter((s: any) => s.status === 'FREE');
 
     return { zone, freeSpaces };
 };
 
 export const actions: Actions = {
-    confirm: async ({ request, fetch }) => {
+    confirm: async ({ request, fetch, locals }) => {
+        // De user ophalen uit locals
+        const user = locals.user;
+
+        if (!user) {
+            return fail(401, { error: 'Je moet ingelogd zijn om te reserveren.' });
+        }
+
         const data = await request.formData();
         const spaceId = data.get('spaceId');
 
@@ -27,33 +37,47 @@ export const actions: Actions = {
             return fail(400, { error: 'Selecteer een parkeerplaats.' });
         }
 
-        // Tijden voorbereiden (nu tot over 2 uur) voor de Java Instant
         const from = new Date().toISOString(); 
         const until = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
 
+const payload = {
+            userId: user.id,
+            spaceId: spaceId,
+            from: from,
+            until: until
+        };
+
+        // --- LOG DE REQUEST ---
+        console.log("🚀 [POST] /reservations - Request:", JSON.stringify(payload, null, 2));
+
         try {
-            // We roepen jouw ReservationController aan: POST /api/reservations
             const res = await fetch(`${BACKEND_URL}/reservations`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: 1, // Tijdelijk hardcoded tot je Auth hebt
-                    spaceId: spaceId,
-                    from: from,
-                    until: until
-                })
+                body: JSON.stringify(payload)
             });
 
-            if (!res.ok) {
-                const errorData = await res.text();
-                console.error("Backend Error:", errorData);
-                return fail(res.status, { error: 'Reservering mislukt. Is de plek al bezet?' });
+            // --- LOG DE RESPONSE ---
+            // Belangrijk: gebruik .clone() zodat je de body kan loggen én daarna nog kan gebruiken
+            const clonedRes = res.clone();
+            const responseText = await clonedRes.text();
+            
+            console.log(`✅ [POST] /reservations - Status: ${res.status} ${res.statusText}`);
+            try {
+                // Probeer het als JSON te loggen voor leesbaarheid, anders als tekst
+                console.log("📦 Response Body:", JSON.parse(responseText));
+            } catch {
+                console.log("📄 Response Body (text):", responseText);
             }
 
-            // Als het lukt (204 No Content), stuurt de controller niets terug
+            if (!res.ok) {
+                // ... je error handling ...
+            }
+
             return { success: true };
         } catch (e) {
-            return fail(500, { error: 'Kan de reserveringsserver niet bereiken.' });
+            console.error("❌ Fetch Error:", e);
+            return fail(500, { error: 'Kan de server niet bereiken.' });
         }
     }
 };

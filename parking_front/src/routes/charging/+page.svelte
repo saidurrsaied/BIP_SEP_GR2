@@ -5,7 +5,6 @@
 
   let { data }: { data: PageData } = $props();
 
-  // GEFIXED: Check of de chargingPoint NIET 'FALSE' is
   const chargingZones = $derived(
     (data.zones || []).filter(zone => 
       zone.spaces && zone.spaces.some((s: any) => s.chargingPoint !== 'FALSE')
@@ -16,14 +15,25 @@
     return (cents / 100).toFixed(2);
   }
 
-  // GEFIXED: Tel alle beschikbare laders (alles wat niet 'FALSE' is en status 'FREE' heeft)
+  // NIEUW: Bereken de prijs op basis van de multipliers
+  function calculateEVPrice(zone: any): number {
+    const policy = zone.pricingPolicy;
+    if (!policy) return 0;
+
+    const hasFast = zone.spaces.some((s: any) => s.chargingPoint === 'FAST_CHARGER');
+    
+    // Pak de juiste multiplier (fallback naar 2 of 4 als ze undefined zijn)
+    const multiplier = hasFast ? (policy.fastMultiplier || 4) : (policy.slowMultiplier || 2);
+    
+    return policy.hourlyRateCents * multiplier;
+  }
+
   function getAvailableLaders(zone: any): number {
     return (zone.spaces || []).filter((s: any) => 
       s.chargingPoint !== 'FALSE' && s.status === 'FREE'
     ).length;
   }
 
-  // Helper om te kijken of een zone snelladers heeft
   function hasFastCharger(zone: any): boolean {
     return (zone.spaces || []).some((s: any) => s.chargingPoint === 'FAST_CHARGER');
   }
@@ -39,39 +49,33 @@
       </div>
       <div>
         <h1 class="text-3xl font-bold text-on-surface">EV Charging</h1>
-        <p class="text-on-surface-variant text-sm">Find fast and slow chargers near you</p>
+        <p class="text-on-surface-variant text-sm">Prijzen gebaseerd op uurtarief x multiplier</p>
       </div>
     </div>
 
     {#if chargingZones.length === 0}
-      <div class="text-center py-20 bg-surface-container-lowest rounded-3xl border border-dashed border-outline-variant">
-        <span class="material-symbols-outlined text-5xl text-on-surface-variant/30 mb-4">ev_charger</span>
-        <p class="text-on-surface-variant font-medium">No charging zones found in the database.</p>
-        <p class="text-xs text-on-surface-variant/60 mt-1">Make sure you added spaces with 'SLOW_CHARGER' or 'FAST_CHARGER'.</p>
-      </div>
-    {:else}
+      {:else}
       <div class="grid gap-6 md:grid-cols-2">
         {#each chargingZones as zone (zone.zoneId)}
           {@const availableCount = getAvailableLaders(zone)}
           {@const fast = hasFastCharger(zone)}
+          {@const evPrice = calculateEVPrice(zone)}
           
           <div class="bg-surface-container-lowest p-6 rounded-3xl shadow-sm border border-surface-container-high hover:shadow-md transition-all group">
             <div class="flex items-start justify-between mb-4">
               <div>
                 <h3 class="text-xl font-bold text-primary group-hover:text-secondary transition-colors">{zone.name}</h3>
-                <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mt-1">
-                  ID: {zone.zoneId.slice(0, 8)}
-                </p>
+                <p class="text-[10px] font-black text-on-surface-variant uppercase mt-1">ID: {zone.zoneId.slice(0, 8)}</p>
               </div>
               <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wider {availableCount > 0 ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'}">
-                {availableCount > 0 ? 'AVAILABLE' : 'FULLY OCCUPIED'}
+                {availableCount > 0 ? 'AVAILABLE' : 'FULL'}
               </span>
             </div>
 
             <div class="space-y-3 mb-6">
               <div class="flex items-center gap-3 text-on-surface-variant">
                 <span class="material-symbols-outlined text-lg">location_on</span>
-                <span class="text-sm font-medium">{zone.address || 'Unknown address'}, {zone.city}</span>
+                <span class="text-sm font-medium">{zone.address}, {zone.city}</span>
               </div>
               
               <div class="flex items-center gap-3 text-on-surface-variant">
@@ -87,17 +91,17 @@
               <div class="flex items-center gap-3 text-on-surface-variant">
                 <span class="material-symbols-outlined text-lg">payments</span>
                 <span class="text-sm">
-                  <strong class="text-primary">€{formatPrice(zone.pricingPolicy?.chargingRatePerKwhCents || 0)}</strong> per kWh
+                  <strong class="text-primary">€{formatPrice(evPrice)}</strong> per uur
+                  <span class="text-[10px] opacity-60 ml-1">
+                    ({fast ? 'x' + (zone.pricingPolicy.fastMultiplier || 4) : 'x' + (zone.pricingPolicy.slowMultiplier || 2)})
+                  </span>
                 </span>
               </div>
             </div>
 
             <div class="border-t border-surface-container-high pt-5">
-              <a
-                href="/zones/{zone.zoneId}/reserve"
-                class="block w-full text-center bg-primary text-on-primary py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-all shadow-sm"
-              >
-                Reserve / View Details
+              <a href="/zones/{zone.zoneId}/reserve" class="block w-full text-center bg-primary text-on-primary py-3 rounded-xl font-bold text-sm hover:opacity-90 shadow-sm">
+                Reserveer Nu
               </a>
             </div>
           </div>
@@ -108,9 +112,3 @@
 </main>
 
 <BottomNavBar />
-
-<style>
-  :global(.material-symbols-outlined) {
-    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  }
-</style>

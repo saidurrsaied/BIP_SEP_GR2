@@ -53,6 +53,8 @@ public class ReservationService {
                 reservation.getCreatedAt()
         ));
 
+        System.out.println("Reservation placed: " + reservation.getReservationId() + " for user " + reservation.getUserId() + " at space " + reservation.getSpaceId());
+
         return reservation;
     }
 

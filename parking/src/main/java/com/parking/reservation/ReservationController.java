@@ -17,7 +17,7 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Void> placeReservation(@RequestBody PlaceReservationRequest request) {
-        reservationService.checkReservationSpace(request.userId, request.spaceId(), request.from(), request.until());
+        reservationService.checkReservationSpace(request.userId(), request.spaceId(), request.from(), request.until());
         return ResponseEntity.noContent().build();
     }
 
